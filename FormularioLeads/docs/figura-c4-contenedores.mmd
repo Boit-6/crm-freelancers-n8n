@@ -1,0 +1,53 @@
+flowchart TB
+%% Diagrama de contenedores — C4 nivel 2
+%% Automatización del Ciclo de Vida del Cliente para Freelancers con n8n
+%% Sigue las convenciones del modelo C4 (Simon Brown): personas, límite del
+%% sistema, contenedores desplegables por separado con su tecnología entre
+%% corchetes, y sistemas externos. Cada relación indica protocolo.
+%% Se dibuja con flowchart en lugar de la extensión C4 de Mermaid porque esta
+%% última superpone las etiquetas cuando hay más de diez relaciones.
+    cliente(["<b>Cliente potencial</b><br/><i>[Persona]</i><br/>Sin cuenta"])
+    freelancer(["<b>Freelancer</b><br/><i>[Persona]</i><br/>Único usuario autenticado"])
+
+    subgraph sistema["Plataforma del ciclo comercial &nbsp;&nbsp;<i>[Límite del sistema]</i>"]
+        direction TB
+        spa["<b>Aplicación web</b><br/><i>[Contenedor: Next.js · React]</i><br/>Formulario público, página de<br/>aceptación y tablero interno"]
+        proxy["<b>Capa de proxy</b><br/><i>[Contenedor: Next.js · Node.js]</i><br/>Refresca la sesión y revalida<br/>el rol admin"]
+        n8n["<b>Orquestador</b><br/><i>[Contenedor: n8n · 161 nodos]</i><br/>Lógica de negocio.<br/>Único con permiso de escritura"]
+        db[("<b>Base de datos</b><br/><i>[Contenedor: PostgreSQL / Supabase]</i><br/>5 tablas · 2 vistas · RLS")]
+        auth["<b>Autenticación</b><br/><i>[Contenedor: Supabase Auth]</i><br/>Sesión y rol de aplicación"]
+    end
+
+    subgraph externos["Sistemas externos"]
+        direction LR
+        gmail["<b>Gmail</b><br/><i>[Sistema externo]</i>"]
+        telegram["<b>Telegram</b><br/><i>[Sistema externo]</i>"]
+        gotenberg["<b>Gotenberg</b><br/><i>[Sistema externo]</i>"]
+        mp["<b>MercadoPago</b><br/><i>[Sistema externo]</i>"]
+    end
+
+    cliente -->|"Consulta y acepta<br/><i>[HTTPS]</i>"| spa
+    freelancer -->|"Fija términos y cierra<br/><i>[HTTPS]</i>"| spa
+
+    spa -->|"Rutas protegidas<br/><i>[HTTP interno]</i>"| proxy
+    proxy -->|"Valida sesión y rol<br/><i>[JWT]</i>"| auth
+    spa -->|"Dispara los flujos<br/><i>[Webhook · token / Header Auth]</i>"| n8n
+    spa -->|"Lee el tablero, sólo lectura<br/><i>[PostgREST · RLS]</i>"| db
+    db -.->|"Cambios en vivo<br/><i>[WebSocket]</i>"| spa
+
+    n8n -->|"Escribe el estado<br/><i>[SQL · service_role]</i>"| db
+    n8n -->|"<i>[API]</i>"| gmail
+    n8n -->|"<i>[API]</i>"| telegram
+    n8n -->|"HTML → PDF<br/><i>[HTTP]</i>"| gotenberg
+    n8n -->|"Crea la preferencia<br/><i>[API]</i>"| mp
+    mp -.->|"Notifica el pago<br/><i>[Webhook]</i>"| n8n
+
+    classDef persona fill:#0b4884,stroke:#073b6f,color:#ffffff;
+    classDef contenedor fill:#438dd5,stroke:#2e6295,color:#ffffff;
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff;
+    class cliente,freelancer persona;
+    class spa,proxy,n8n,db,auth contenedor;
+    class gmail,telegram,gotenberg,mp externo;
+
+    style sistema fill:none,stroke:#666666,stroke-dasharray:6 4
+    style externos fill:none,stroke:#bbbbbb,stroke-dasharray:3 3

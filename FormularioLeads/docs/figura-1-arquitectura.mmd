@@ -1,0 +1,61 @@
+flowchart TB
+%% Figura 1 — Arquitectura en tres capas (frontend -> n8n -> Supabase)
+%% Trabajo Final: Automatización del Ciclo de Vida del Cliente para Freelancers con n8n
+%% Cifras verificadas contra workflow/crm_postgres.json y db/schema.sql (26-ago-2026).
+    U(["Visitante / Freelancer"])
+
+    subgraph FE["① Capa de presentación — Next.js / React (Vercel)"]
+        direction LR
+        F1["Formulario público<br/>ruta /"]
+        F2["Aceptación de propuesta<br/>ruta /aceptar/:leadId"]
+        F3["Autenticación<br/>/login · /register · /auth/*"]
+        F4["Tablero de control<br/>/dashboard (protegido)"]
+    end
+
+    subgraph N8N["② Capa de orquestación — n8n · 168 nodos funcionales (185 con notas)"]
+        direction LR
+        WH["13 webhooks<br/>POST /lead-nuevo · POST /lead-acepta<br/>POST /propuesta-enviar · POST /mp/notificacion<br/>POST /proyecto-cerrado · …"]
+        LG["Lógica de negocio<br/>normalización · scoring (HOT/WARM/COLD)<br/>propuesta · factura · cobro · cierre"]
+        CR["4 procesos programados (cron)<br/>seguimiento · recordatorios<br/>métricas · reconciliación de facturas"]
+    end
+
+    subgraph DB["③ Capa de persistencia — Supabase (PostgreSQL)"]
+        direction LR
+        AU["Supabase Auth<br/>+ profiles (rol de aplicación)"]
+        TB["5 tablas<br/>leads · facturas · seguimientos<br/>logs · profiles"]
+        VW["2 vistas<br/>metrics_mensuales · facturas_pendientes"]
+    end
+
+    subgraph EXT["Servicios externos (invocados por n8n)"]
+        direction LR
+        GM["Gmail"]
+        TG["Telegram"]
+        GT["Gotenberg<br/>HTML → PDF"]
+        MP["MercadoPago<br/>cobro real"]
+    end
+
+    U --> F1 & F2 & F3 & F4
+
+    F1 -->|"POST lead (JSON)"| WH
+    F2 -->|"token de un solo uso"| WH
+    F4 -->|"fija precio, plazo y alcance<br/>Header Auth"| WH
+    F3 <-->|"login / registro / OTP"| AU
+    F4 -->|"valida sesión y rol admin"| AU
+    F4 -->|"lectura sólo — clave pública + sesión (RLS)"| VW
+    VW --- TB
+    TB -. "postgres_changes (tiempo real, p95 &lt; 1,1 s)" .-> F4
+
+    WH --> LG
+    CR --> LG
+    LG -->|"escritura única<br/>service_role · evade RLS"| TB
+    LG --> GM & TG & GT & MP
+    MP -. "notificación de pago" .-> WH
+
+    classDef pres fill:#fef3c7,stroke:#d97706,color:#111827;
+    classDef orch fill:#dbeafe,stroke:#2563eb,color:#111827;
+    classDef data fill:#dcfce7,stroke:#16a34a,color:#111827;
+    classDef ext  fill:#f3f4f6,stroke:#6b7280,color:#111827;
+    class F1,F2,F3,F4 pres;
+    class WH,LG,CR orch;
+    class AU,TB,VW data;
+    class GM,TG,GT,MP ext;

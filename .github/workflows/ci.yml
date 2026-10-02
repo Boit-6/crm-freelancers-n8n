@@ -1,0 +1,128 @@
+name: CI
+
+# Valida el artefacto en cada push y pull request. Todo lo que corre acá es
+# offline: no necesita n8n, ni credenciales, ni la instancia de Supabase.
+# La validación funcional de punta a punta (tests/escenarios.mjs) se ejecuta a
+# mano contra el entorno controlado, porque requiere el sistema levantado.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '*.md', 'FormularioLeads/docs/**']
+  pull_request:
+    paths-ignore: ['docs/**', '*.md', 'FormularioLeads/docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Las Actions van fijadas por SHA de commit, no por tag: un tag (`@v4`) lo
+# puede mover quien controle el repositorio de la Action, y el job correría
+# ese código nuevo sin que nada cambie acá. El comentario dice a qué versión
+# corresponde cada SHA (la que apuntaba `v4` el 23-sep-2026).
+
+jobs:
+  secretos:
+    name: Secretos filtrados al repo
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      # Gitleaks como binario, no como Action de marketplace: la Action
+      # oficial pide una licencia para uso en organizaciones y no vale la
+      # pena esa dependencia para lo que hace falta acá. Versión pineada
+      # (no `latest`) para que la corrida sea reproducible, y verificada
+      # contra su SHA-256 antes de ejecutarse: el hash coincide con el
+      # gitleaks_8.18.4_checksums.txt oficial del release.
+      - name: Instalar gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz
+          echo "ba6dbb656933921c775ee5a2d1c13a91046e7952e9d919f9bac4cec61d628e7d  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+
+      - name: Escanear todo el historial en busca de secretos
+        run: gitleaks detect --source . --redact -v
+
+  workflows:
+    name: Workflows n8n y esquema
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+
+      # Nodos Code de los dos workflows, scoring (regresión contra la Tabla 4),
+      # envejecimiento de tickets y afirmaciones de la tesis.
+      - name: Pruebas del artefacto
+        run: npm test
+
+      # Compila las consultas SQL de los workflows contra el esquema real: una
+      # columna mal escrita en un nodo Postgres se detecta acá y no en producción.
+      - name: Consultas SQL de los workflows
+        run: npm run test:sql
+
+      # Levanta un PostgreSQL real, aplica db/schema.sql y ejecuta las políticas
+      # RLS rol por rol. Es la evidencia de que la RLS no vive sólo en el script.
+      - name: Verificación de RLS
+        run: npm run test:rls
+
+      # Ejecuta de verdad las consultas de deduplicación (S6) y de reconciliación
+      # de facturas (S5), leyendo el SQL del propio workflow: si un nodo deja de
+      # ser idempotente, se pone en rojo acá. Mismo PostgreSQL desechable que las
+      # dos anteriores, en su propio contenedor.
+      - name: Idempotencia de la captación y la facturación
+        run: npm run test:idempotencia
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: FormularioLeads
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: FormularioLeads/package-lock.json
+
+      - name: Cache de build de Next.js
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: FormularioLeads/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('FormularioLeads/package-lock.json') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-
+
+      - run: npm ci
+
+      - name: Auditoría de dependencias
+        run: npm audit --audit-level=high
+
+      - name: Lint
+        run: npm run lint -- --max-warnings 0
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests (Vitest)
+        run: npm test
+
+      # El build no necesita credenciales: los clientes de Supabase devuelven
+      # null cuando faltan las variables, en vez de romper.
+      - name: Build
+        run: npm run build

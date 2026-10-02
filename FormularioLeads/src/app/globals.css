@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  /* Papel y tinta */
+  --color-paper: #f7f4ee;
+  --color-card: #ffffff;
+  --color-ink: #191713;
+  --color-ink-soft: #4f4a40;
+  --color-muted: #6e675b;
+  /* faint/mist: oscurecidos al mínimo para llegar a 4.5:1 sobre --color-paper
+     (WCAG AA). A esta luminosidad de fondo casi no queda margen entre "pasa
+     4.5:1" y blanco, así que los dos tokens quedan visualmente muy próximos
+     entre sí — es la contrapartida real de cumplir AA acá, no un accidente. */
+  --color-faint: #746c60; /* antes #8a8172 (contraste 3.5:1) -> ahora ~4.7:1 */
+  --color-mist: #766f62; /* antes #a79e8c (contraste 2.4:1) -> ahora ~4.5:1 */
+
+  /* Filetes */
+  --color-rule: #dcd5c7;
+  --color-rule-soft: #efe9de;
+
+  /* Acentos */
+  --color-ochre: #8f5f22;
+  --color-ochre-deep: #6b4514;
+  --color-moss: #4f7a3a;
+  --color-brick: #9a3b2a;
+
+  --font-sans:
+    var(--font-instrument-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+}
+
+:root {
+  background-color: #f7f4ee;
+  color: #191713;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Tailwind v4 resuelve las utilidades (bg-paper, text-ink, etc.) contra
+     estas custom properties en tiempo de ejecución: alcanza con pisarlas acá
+     -- @theme es solo para REGISTRAR tokens la primera vez, no hace falta
+     (ni corresponde) repetirlo dentro de un @media. */
+  :root {
+    --color-paper: #17140f;
+    --color-card: #211d16;
+    --color-ink: #ece6d9;
+    --color-ink-soft: #cabfa9;
+    --color-muted: #a99d85;
+    --color-faint: #8d8168;
+    --color-mist: #756a55;
+
+    --color-rule: #3a3327;
+    --color-rule-soft: #2a251c;
+
+    --color-ochre: #d19a4a;
+    --color-ochre-deep: #e8b569;
+    --color-moss: #82ab68;
+    --color-brick: #d17a63;
+
+    background-color: #17140f;
+    color: #ece6d9;
+  }
+
+  ::selection {
+    background-color: #d19a4a;
+    color: #17140f;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background-color: #8f5f22;
+  color: #f7f4ee;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

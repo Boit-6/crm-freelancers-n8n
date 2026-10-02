@@ -1,0 +1,7 @@
+# Todo el texto se guarda y se escribe con LF, sin importar el SO/editor.
+* text=auto eol=lf
+
+*.jpg binary
+*.png binary
+*.pdf binary
+*.docx binary

@@ -1,0 +1,171 @@
+# docker-compose — entorno local del CRM (n8n + Gotenberg)
+# Levanta ambos servicios en la MISMA red para que n8n alcance a Gotenberg
+# por nombre de host (http://gotenberg:3000). La red bridge por defecto NO
+# resuelve por nombre, por eso definimos una red propia (crm-net).
+#
+# Uso:  docker compose up -d
+# n8n  → http://localhost:5678
+#
+# La base de datos NO está acá: vive en Supabase (PostgreSQL gestionado).
+
+services:
+  n8n:
+    image: n8nio/n8n:2.34.6
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      # Sólo loopback. Para acceso externo, publicar un proxy HTTPS con auth
+      # y controles de origen; no abrir directamente el editor de n8n.
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      # URL pública con la que n8n se anuncia a sí mismo. En local queda en
+      # localhost; para producción/demo poné N8N_PUBLIC_URL (ej. la URL https
+      # de ngrok, con la barra final) en un archivo .env junto a este compose
+      # — está gitignoreado, así la URL descartable no va al repo.
+      - WEBHOOK_URL=${N8N_PUBLIC_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=America/Argentina/Buenos_Aires
+      - TZ=America/Argentina/Buenos_Aires
+      # N8N_ENCRYPTION_KEY se OMITE a propósito: n8n toma la key que ya está
+      # guardada dentro del volumen n8n_data (la que encriptó tus credenciales).
+      # Si la seteás acá con un valor distinto, las credenciales dejan de desencriptar.
+      # Variables reusables del workflow (poné los valores en el .env junto a este compose).
+      # Así el chatId de Telegram NO se hardcodea en cada nodo y sobrevive a los
+      # re-imports del workflow.
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - PLATAFORMA_NOMBRE=${PLATAFORMA_NOMBRE:-FormularioLeads}
+      - AVISOS_WORKFLOW_ID=${AVISOS_WORKFLOW_ID:-}
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET:-}
+      # Permite leer $env dentro de los nodos Code (configuración del workflow)
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      # ── URLs del CRM ──────────────────────────────────────────────────────
+      # Ya no hay ninguna URL escrita a mano dentro de los nodos.
+      # N8N_PUBLIC_URL cumple doble función: se anuncia como WEBHOOK_URL (arriba)
+      # y es la base del enlace de pago que viaja en la factura.
+      - N8N_PUBLIC_URL=${N8N_PUBLIC_URL:-http://localhost:5678/}
+      - FRONTEND_URL=${FRONTEND_URL:-https://formulario-leads-psi.vercel.app}
+      - GOTENBERG_URL=${GOTENBERG_URL:-http://gotenberg:3000/forms/chromium/convert/html}
+      # CORS_ORIGINS no se inyecta: webhook.options.allowedOrigins en n8n 2.34.6
+      # requiere literales. Renderizar e importar copias con `workflow:render`.
+      # ── Seguridad ─────────────────────────────────────────────────────────
+      # Días que vale el enlace de aceptación desde que se envía la propuesta.
+      - TOKEN_VIGENCIA_DIAS=${TOKEN_VIGENCIA_DIAS:-14}
+      # Ventana de deduplicación de la captación (S6 de la Tabla 11): dentro de
+      # estos minutos, un segundo envío con el MISMO correo no crea otro lead ni
+      # dispara otra propuesta. Es la mitad del cerrojo; la otra es el bloqueo
+      # del botón en el formulario.
+      - DEDUP_VENTANA_MINUTOS=${DEDUP_VENTANA_MINUTOS:-10}
+      # Reconciliación de facturas (S5 de la Tabla 11): minutos que se le dan a
+      # la cadena de aceptación para terminar antes de considerar que un lead en
+      # ACEPTADO se quedó sin factura. Evita pisar una aceptación en vuelo.
+      - RECONCILIACION_GRACIA_MINUTOS=${RECONCILIACION_GRACIA_MINUTOS:-15}
+      # Días de vigencia de la factura que emite la reconciliación (los mismos
+      # que usa la rama de aceptación).
+      - FACTURA_VENCIMIENTO_DIAS=${FACTURA_VENCIMIENTO_DIAS:-15}
+      # Permite `require('crypto')` dentro de los nodos Code (valida la firma
+      # de los eventos de Stripe). Sin esto, el Code node no puede acceder al
+      # módulo aunque STRIPE_WEBHOOK_SECRET esté configurado.
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto
+      # Apaga la telemetría de uso que n8n manda a sus propios servidores.
+      - N8N_DIAGNOSTICS_ENABLED=false
+      # Detrás de un proxy HTTPS (Caddy en la demo): n8n confía en un salto de
+      # X-Forwarded-For para resolver la IP real del cliente.
+      - N8N_PROXY_HOPS=${N8N_PROXY_HOPS:-0}
+      # Demo de portfolio: con un correo acá, todos los Gmail de los workflows
+      # van a esa casilla con el asunto «[DEMO → destinatario original] …».
+      # Vacía = cada correo va a su destinatario real.
+      - DEMO_EMAIL_SINK=${DEMO_EMAIL_SINK:-}
+      # ── Cobro con Stripe Connect (RAMA 8) ────────────────────────────────
+      # Sin STRIPE_SECRET_KEY, el enlace de la factura cae al pago simulado.
+      # STRIPE_API_BASE vacío = la API real; se cambia sólo para apuntar a un
+      # doble local (tests/stripe-doble.mjs). El secreto del webhook es
+      # obligatorio: sin él, todo evento se rechaza.
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - STRIPE_API_BASE=${STRIPE_API_BASE:-}
+      - COMISION_PLATAFORMA_PORCENTAJE=${COMISION_PLATAFORMA_PORCENTAJE:-1}
+      # ── Calificación de leads (Tabla 4) ───────────────────────────────────
+      # Los defaults reproducen exactamente la tabla documentada en la tesis;
+      # están acá para poder recalibrar el criterio sin tocar el workflow.
+      - SCORING_UMBRAL_HOT=${SCORING_UMBRAL_HOT:-70}
+      - SCORING_UMBRAL_WARM=${SCORING_UMBRAL_WARM:-40}
+      - SCORING_PRESUPUESTO=${SCORING_PRESUPUESTO:-5000:40,2000:30,1000:20,300:10}
+      - SCORING_URGENCIA=${SCORING_URGENCIA:-alta:30,media:15,baja:5}
+      - SCORING_SERVICIO=${SCORING_SERVICIO:-desarrollo_web:20,ecommerce:20,app_movil:18,automatizacion:18,marketing:15,seo:15,diseno_ui:15,consultoria:12,soporte:5}
+      - SCORING_BONUS_TELEFONO=${SCORING_BONUS_TELEFONO:-5}
+      - SCORING_BONUS_DESCRIPCION=${SCORING_BONUS_DESCRIPCION:-5}
+      # ── Tickets (tabla `tickets` + workflow/tickets.json) ──────────────────
+      # Chat de Telegram del resumen diario; si está vacío usa TELEGRAM_CHAT_ID.
+      - TICKETS_TELEGRAM_CHAT_ID=${TICKETS_TELEGRAM_CHAT_ID:-}
+      # Al aceptarse una propuesta se siembran estos tickets del proyecto.
+      # Filas "Titulo|PRIORIDAD|dias_hasta_vencer" separadas por ";".
+      # {cliente} y {servicio} se reemplazan con los datos del lead.
+      - TICKETS_PLANTILLA_PROYECTO=${TICKETS_PLANTILLA_PROYECTO:-Kickoff con {cliente}|ALTA|2;Primera entrega de {servicio}|MEDIA|7;Revision y ajustes|MEDIA|14;Cobrar la factura de {cliente}|ALTA|10}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - crm-net
+    depends_on:
+      - gotenberg
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          # Con 512M n8n muere por falta de heap al activar el workflow del CRM
+          # (233 nodos): medido el 23-sep-2026, usa ~660M ya activo.
+          memory: 2G
+          cpus: '1.0'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  gotenberg:
+    image: gotenberg/gotenberg:8.14.1
+    container_name: gotenberg
+    restart: unless-stopped
+    # La factura es HTML con datos del cliente y Chromium la renderiza dentro de
+    # crm-net, con alcance a n8n. Por defecto ejecuta JavaScript y carga
+    # cualquier URL http(s): un <iframe> hacia http://n8n:5678 terminaba impreso
+    # en el PDF que se le manda al cliente (SSRF). La factura no usa scripts ni
+    # recursos externos, así que se apaga JS y sólo se permite el propio
+    # index.html que Gotenberg escribe en /tmp.
+    command:
+      - gotenberg
+      - --chromium-disable-javascript=true
+      - --chromium-allow-list=^file:///tmp/.*
+    # No expone puerto al host: solo n8n lo consume por la red interna.
+    networks:
+      - crm-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '2.0'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  # Volumen preexistente con tus credenciales/workflows (creado fuera de este compose).
+  # external: usa el volumen "n8n_data" tal cual, sin prefijo del proyecto.
+  n8n_data:
+    external: true
+
+networks:
+  crm-net:
+    driver: bridge
