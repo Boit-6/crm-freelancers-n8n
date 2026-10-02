@@ -2,12 +2,12 @@
 # ejemplo de `accept_token`/`pago_token` en evidencia y fixtures de test, no
 # credenciales reales — esos UUID los genera la propia base por lead/factura,
 # no son secretos externos que se puedan reusar contra ningún servicio.
-ac40e36c056b9446d7ad5d52a636f23ba6a1b37d:docs/evidencia-E15-E16.md:generic-api-key:312
-d72084c1b5d3c93f1803f542810958bafe2cb04c:tests/smoke_code_nodes.js:generic-api-key:86
-d72084c1b5d3c93f1803f542810958bafe2cb04c:docs/evidencia-E15-E16.md:generic-api-key:199
-# Tokens UUID de ejemplo en tests del front (pago protegido, mensajes, panel
-# del cliente y elección): los mismos valores de fixture, no credenciales.
-f33606466e8b27052aeece6164d96abbcead70de:FormularioLeads/src/app/(plataforma)/proyecto/[token]/proyecto-hitos.test.tsx:generic-api-key:11
-7059cb1cf3a3685bd237e5a1c68311e6f8423fc7:FormularioLeads/src/app/components/conversacion.test.tsx:generic-api-key:18
-77d2449a5d33e60b3cb61be06882ecb95583b87b:FormularioLeads/src/app/(plataforma)/cliente/mis-proyectos.test.tsx:generic-api-key:12
-3335b5b9f0775d41d0c7e323ced73f95e687c8a0:FormularioLeads/src/app/(plataforma)/elegir/[token]/elegir-postulacion.test.tsx:generic-api-key:5
+# Los tests del front usan los mismos valores de fixture (pago protegido,
+# mensajes, panel del cliente y elección).
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:docs/evidencia-E15-E16.md:generic-api-key:199
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:docs/evidencia-E15-E16.md:generic-api-key:312
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:FormularioLeads/src/app/components/conversacion.test.tsx:generic-api-key:18
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:FormularioLeads/src/app/(plataforma)/cliente/mis-proyectos.test.tsx:generic-api-key:12
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:FormularioLeads/src/app/(plataforma)/elegir/[token]/elegir-postulacion.test.tsx:generic-api-key:5
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:FormularioLeads/src/app/(plataforma)/proyecto/[token]/proyecto-hitos.test.tsx:generic-api-key:12
+8b4ae8a724c96ae9a2ac638f4ba7ed1ec50fd3c6:tests/smoke_code_nodes.mjs:generic-api-key:65
