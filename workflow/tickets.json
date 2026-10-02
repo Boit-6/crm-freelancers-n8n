@@ -17,8 +17,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        200,
+        260
       ]
     },
     {
@@ -32,8 +32,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        260,
-        0
+        480,
+        260
       ],
       "credentials": {
         "postgres": {
@@ -51,8 +51,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        520,
-        0
+        760,
+        260
       ]
     },
     {
@@ -142,16 +142,16 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        780,
-        0
+        1040,
+        260
       ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "content": "## 🎫 Tickets — envejecimiento\nCada día a las 8:00 sube un escalón la prioridad de los tickets abiertos que llevan más días quietos de los que tolera su prioridad (`ticket_dias_escalada` en db/schema.sql: BAJA 10, MEDIA 7, ALTA 4). Subir de prioridad cuenta como movimiento: el reloj se reinicia (trigger `trg_tickets_movimiento`). Después arma un resumen por espacio y lo manda como aviso (subflujo `workflow/avisos.json`): al panel del desarrollador y a su Telegram, si lo vinculó.\n\nLos tickets se crean y se mueven desde el tablero del dashboard (`/api/tickets`, con la sesión del admin y RLS), y el CRM siembra los del proyecto al aceptarse una propuesta.",
-        "height": 260,
-        "width": 1000,
+        "height": 500,
+        "width": 1100,
         "color": 5
       },
       "id": "tk-05-0000-4000-8000-aaaaaaaaaaaa",
@@ -159,8 +159,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -300
+        120,
+        0
       ]
     }
   ],

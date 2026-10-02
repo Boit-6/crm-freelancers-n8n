@@ -13,8 +13,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        240,
-        300
+        200,
+        240
       ],
       "webhookId": "b0b00001-0000-4001-8001-0000000000ff"
     },
@@ -27,8 +27,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
-        300
+        480,
+        240
       ]
     },
     {
@@ -44,8 +44,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        680,
-        300
+        760,
+        240
       ],
       "credentials": {
         "postgres": {
@@ -68,8 +68,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        900,
-        300
+        1040,
+        240
       ],
       "credentials": {
         "telegramApi": {
@@ -82,16 +82,16 @@
     {
       "parameters": {
         "content": "## 🤖 Bot de Telegram — vincular avisos\n\nEl desarrollador pide un código desde \"Tu espacio\" y lo abre en el bot (`/start <código>`). Acá se canjea por su chat (`vincular_telegram()` en db/schema.sql) y desde entonces los avisos de su espacio le llegan por Telegram.\n\n**Instalación:** una vez, registrar el webhook del bot con el secreto:\n`curl \"https://api.telegram.org/bot<TOKEN>/setWebhook\" -d url=<N8N_PUBLIC_URL>webhook/telegram-bot -d secret_token=<TELEGRAM_WEBHOOK_SECRET>`",
-        "height": 300,
-        "width": 560
+        "height": 500,
+        "width": 1100
       },
       "id": "b0b00001-0000-4001-8001-000000000005",
       "name": "Nota — Bot",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        220,
-        -60
+        120,
+        0
       ]
     }
   ],

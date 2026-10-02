@@ -3,8 +3,8 @@
     {
       "parameters": {
         "content": "## 🔵 Captación y calificación (RAMA 1)\nCapta el lead del formulario → normaliza → **score/tier** → lo guarda.\nSi es HOT/WARM: propuesta por email + Telegram. Si es COLD: solo aviso.\n\n**Idempotencia (S6):** el INSERT es condicional — no inserta si ya entró un lead con el **mismo correo** al **mismo espacio** dentro de `DEDUP_VENTANA_MINUTOS` (10 por defecto).\n\n**Espacio:** el formulario de `/f/<slug>` manda su dirección y el INSERT la resuelve a `espacio_id`; una dirección que no existe no crea nada. Sin dirección (formulario de la raíz), el lead va al espacio del admin. Sin fila, `IF - Lead Nuevo?` corta en `No-op - Lead Duplicado`: ni segundo score ni segunda propuesta. El webhook ya respondió 200 al enviar, así que el que hizo doble clic ve éxito igual.\nEl `WHERE NOT EXISTS` **solo no alcanza**: dos peticiones solapadas abren transacciones distintas y, bajo READ COMMITTED, ninguna ve la fila que la otra no commiteó todavía (comprobado: dos POST simultáneos insertaban dos leads). Por eso va delante `pg_try_advisory_xact_lock` sobre el correo, que solo una de las dos transacciones consigue.\n\n**CORS de webhooks del navegador:** `options.allowedOrigins` debe ser una lista LITERAL: n8n 2.34.6 no evalúa expresiones aquí. Este workflow fuente conserva localhost y el origen Vercel histórico; para otro despliegue, generar una copia con `CORS_ORIGINS` validado e importarla antes de activar el flujo. Cambiar el entorno sin reimportar no cambia CORS. CORS no sustituye autenticación.",
-        "height": 650,
-        "width": 3930,
+        "height": 940,
+        "width": 3060,
         "color": 4
       },
       "id": "sticky-00-0000-4000-8000-aaaaaaaaaaaa",
@@ -12,15 +12,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        -25
+        120,
+        0
       ]
     },
     {
       "parameters": {
         "content": "## 🟢 Aceptación y facturación (RAMA 2)\nEl cliente acepta → valida token → **ACEPTADO** → genera **factura PDF** (Gotenberg) → guarda → email + Telegram.\n\n**Tickets del proyecto:** al aplicar la aceptación se siembran los tickets del proyecto en la tabla `tickets` (plantilla en TICKETS_PLANTILLA_PROYECTO). El INSERT tiene `onError: continuar` y no duplica si se repite: un problema con los tickets no afecta la aceptación.",
-        "height": 650,
-        "width": 3030,
+        "height": 1140,
+        "width": 6420,
         "color": 3
       },
       "id": "sticky-01-0000-4000-8000-aaaaaaaaaaaa",
@@ -28,15 +28,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        1125
+        120,
+        1140
       ]
     },
     {
       "parameters": {
         "content": "## 🔵 Ver Propuesta (GET read-only)\nMuestra la propuesta al cliente **sin mutar nada** (los pre-fetch caen acá sin daño).",
-        "height": 290,
-        "width": 1530,
+        "height": 600,
+        "width": 2500,
         "color": 5
       },
       "id": "sticky-02-0000-4000-8000-aaaaaaaaaaaa",
@@ -44,15 +44,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        2275
+        6740,
+        1140
       ]
     },
     {
       "parameters": {
         "content": "## ❌ Rechazo (cliente)\nEl cliente **rechaza** desde la web → **PERDIDO** + Telegram.",
-        "height": 830,
-        "width": 1530,
+        "height": 800,
+        "width": 2500,
         "color": 2
       },
       "id": "sticky-03-0000-4000-8000-aaaaaaaaaaaa",
@@ -60,15 +60,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        3425
+        120,
+        2480
       ]
     },
     {
       "parameters": {
         "content": "## ✏️ Pedir cambios (cliente)\nEl cliente **pide cambios** → guarda el texto en `notas` → **EN_SEGUIMIENTO** → Telegram.",
-        "height": 830,
-        "width": 1530,
+        "height": 1000,
+        "width": 2500,
         "color": 6
       },
       "id": "sticky-04-0000-4000-8000-aaaaaaaaaaaa",
@@ -76,15 +76,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        4575
+        2820,
+        2480
       ]
     },
     {
       "parameters": {
         "content": "## 🗂️ Estado del trabajo (dashboard)\nDesde el panel: cambia `estado_trabajo` en Supabase.",
-        "height": 470,
-        "width": 1530,
+        "height": 400,
+        "width": 1100,
         "color": 5
       },
       "id": "sticky-05-0000-4000-8000-aaaaaaaaaaaa",
@@ -92,15 +92,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        5725
+        5520,
+        2480
       ]
     },
     {
       "parameters": {
         "content": "## 🚫 Cancelar (dashboard)\nEl freelancer **cancela** un lead desde el panel → PERDIDO + Telegram.",
-        "height": 830,
-        "width": 1530,
+        "height": 800,
+        "width": 1380,
         "color": 2
       },
       "id": "sticky-06-0000-4000-8000-aaaaaaaaaaaa",
@@ -108,15 +108,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        6875
+        6820,
+        2480
       ]
     },
     {
       "parameters": {
         "content": "## ✅ Aceptar cambio (dashboard)\nEl freelancer **acepta** el pedido → reabre PROPUESTA_ENVIADA + **reenvía la propuesta** (link nuevo) + Telegram.",
-        "height": 830,
-        "width": 1830,
+        "height": 1000,
+        "width": 1660,
         "color": 3
       },
       "id": "sticky-07-0000-4000-8000-aaaaaaaaaaaa",
@@ -124,15 +124,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        8025
+        8400,
+        2480
       ]
     },
     {
       "parameters": {
         "content": "## 🚷 Rechazar cambio (dashboard)\nEl freelancer **rechaza** el pedido → mantiene la propuesta original + email avisando que la oferta sigue.",
-        "height": 650,
-        "width": 1830,
+        "height": 800,
+        "width": 1660,
         "color": 2
       },
       "id": "sticky-08-0000-4000-8000-aaaaaaaaaaaa",
@@ -140,15 +140,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        9175
+        120,
+        3680
       ]
     },
     {
       "parameters": {
         "content": "## 🔴 Cierre de proyecto (RAMA 5)\n**Cierra**: CERRADO + factura COBRADA + Telegram + email de testimonio.",
-        "height": 470,
-        "width": 2430,
+        "height": 900,
+        "width": 2220,
         "color": 3
       },
       "id": "sticky-09-0000-4000-8000-aaaaaaaaaaaa",
@@ -156,15 +156,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        10325
+        1980,
+        3680
       ]
     },
     {
       "parameters": {
         "content": "## 💳 RAMA 8 · Cobro con Stripe Connect (24-sep-2026)\nCada desarrollador conecta su cuenta de Stripe (Express) desde \"Tu espacio\" (**🏦 Stripe Conectar / Estado**). Lo que paga su cliente va a esa cuenta y Stripe separa sola la comisión de la plataforma (`application_fee_amount`, `COMISION_PLATAFORMA_PORCENTAJE`, 1%).\n\n**Enlace de la factura** → `/webhook/pagar?f&t` (**💳 Pagar Factura**): recién ahí se crea la sesión de Checkout con el importe de la base. Una factura anulada o cobrada no abre cobro; sin Stripe configurado, cae al pago simulado.\n\n**💳 Webhook - Stripe**: verifica `Stripe-Signature` sobre el cuerpo crudo (`STRIPE_WEBHOOK_SECRET`) y marca **COBRADO** con guarda de estado, monto y moneda. Un pago que no se pudo aplicar se registra y avisa como crítico. Anular una factura expira su sesión abierta.",
-        "height": 830,
-        "width": 4050,
+        "height": 1380,
+        "width": 2780,
         "color": 6
       },
       "id": "sticky-10-0000-4000-8000-aaaaaaaaaaaa",
@@ -172,15 +172,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        11475
+        6660,
+        3680
       ]
     },
     {
       "parameters": {
         "content": "## 🟡 Seguimiento de propuestas (RAMA 3, cron 9AM L-V)\nLeads sin respuesta → **email de seguimiento** (procesa todos). Al 3ro → PERDIDO.",
-        "height": 470,
-        "width": 2730,
+        "height": 600,
+        "width": 2500,
         "color": 3
       },
       "id": "sticky-11-0000-4000-8000-aaaaaaaaaaaa",
@@ -188,15 +188,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        12625
+        6620,
+        5260
       ]
     },
     {
       "parameters": {
         "content": "## 🟠 Recordatorios de pago (RAMA 4, cron 10AM)\nFacturas por vencer → **email**. Las urgentes → Telegram.",
-        "height": 470,
-        "width": 2130,
+        "height": 700,
+        "width": 1940,
         "color": 3
       },
       "id": "sticky-12-0000-4000-8000-aaaaaaaaaaaa",
@@ -204,15 +204,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        13775
+        2540,
+        6060
       ]
     },
     {
       "parameters": {
         "content": "## 📊 Reporte diario de métricas (RAMA 6, cron 23:59)\nArma el **reporte del mes** y lo manda por Telegram.",
-        "height": 290,
-        "width": 930,
+        "height": 400,
+        "width": 820,
         "color": 4
       },
       "id": "sticky-13-0000-4000-8000-aaaaaaaaaaaa",
@@ -220,15 +220,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        14925
+        4680,
+        6060
       ]
     },
     {
       "parameters": {
         "content": "## ⚠️ Manejo de errores (RAMA 7)\nCaptura **cualquier fallo** → log en `logs` + 🚨 Telegram. (Setear este workflow como *Error Workflow* en Settings).",
-        "height": 290,
-        "width": 1230,
+        "height": 400,
+        "width": 1100,
         "color": 2
       },
       "id": "sticky-14-0000-4000-8000-aaaaaaaaaaaa",
@@ -236,15 +236,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        16075
+        5700,
+        6060
       ]
     },
     {
       "parameters": {
         "content": "# CRM Freelance — plataforma compartida\nOrquestación en n8n. Presentación (Next.js/Vercel) ↔ Orquestación (este workflow) ↔ Datos (Supabase). Cada cuadro = una rama.",
-        "height": 180,
-        "width": 900,
+        "height": 120,
+        "width": 600,
         "color": 7
       },
       "id": "sticky-top-0000-4000-8000-aaaaaaaaaaaa",
@@ -252,8 +252,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        150,
-        -320
+        3240,
+        0
       ]
     },
     {
@@ -267,8 +267,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        11600
+        6740,
+        4120
       ],
       "webhookId": "p5-01"
     },
@@ -281,8 +281,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        11600
+        7020,
+        4120
       ]
     },
     {
@@ -298,8 +298,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        11600
+        7300,
+        4120
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -336,8 +336,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        11600
+        7580,
+        4060
       ]
     },
     {
@@ -427,8 +427,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        11600
+        8140,
+        3980
       ],
       "onError": "continueRegularOutput"
     },
@@ -453,8 +453,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        11780
+        7860,
+        3900
       ]
     },
     {
@@ -478,8 +478,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        12140
+        7860,
+        4100
       ]
     },
     {
@@ -498,8 +498,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        15050
+        4760,
+        6220
       ]
     },
     {
@@ -515,8 +515,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        100
+        200,
+        500
       ],
       "webhookId": "p1-01"
     },
@@ -529,8 +529,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        100
+        1600,
+        600
       ]
     },
     {
@@ -546,8 +546,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1050,
-        100
+        2160,
+        600
       ],
       "credentials": {
         "postgres": {
@@ -566,8 +566,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        100
+        1880,
+        600
       ]
     },
     {
@@ -599,8 +599,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1350,
-        100
+        2720,
+        500
       ]
     },
     {
@@ -612,8 +612,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1650,
-        100
+        5300,
+        200
       ]
     },
     {
@@ -703,8 +703,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1650,
-        280
+        3000,
+        500
       ],
       "onError": "continueRegularOutput"
     },
@@ -724,8 +724,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1950,
-        100
+        5580,
+        200
       ],
       "webhookId": "gm-propuesta",
       "credentials": {
@@ -748,8 +748,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        100
+        5860,
+        200
       ],
       "credentials": {
         "postgres": {
@@ -899,8 +899,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3750,
-        100
+        6700,
+        0
       ],
       "credentials": {
         "postgres": {
@@ -996,8 +996,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        3450,
-        100
+        6420,
+        0
       ],
       "onError": "continueRegularOutput"
     },
@@ -1015,8 +1015,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        1250
+        200,
+        1480
       ],
       "webhookId": "p3-01"
     },
@@ -1029,8 +1029,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        1250
+        1600,
+        1580
       ]
     },
     {
@@ -1046,8 +1046,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        1250
+        1880,
+        1580
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1066,8 +1066,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        1250
+        2160,
+        1580
       ]
     },
     {
@@ -1097,8 +1097,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1000,
-        1250
+        2440,
+        1580
       ]
     },
     {
@@ -1128,8 +1128,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        1050
+        2720,
+        1480
       ]
     },
     {
@@ -1159,8 +1159,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        900
+        3000,
+        1580
       ]
     },
     {
@@ -1190,8 +1190,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        1250
+        3280,
+        1680
       ]
     },
     {
@@ -1207,8 +1207,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1350,
-        1250
+        3560,
+        1680
       ],
       "credentials": {
         "postgres": {
@@ -1231,8 +1231,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        1610
+        3560,
+        1880
       ]
     },
     {
@@ -1248,8 +1248,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        950
+        2720,
+        1680
       ]
     },
     {
@@ -1265,8 +1265,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        1100
+        3000,
+        1380
       ]
     },
     {
@@ -1282,8 +1282,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        1250
+        3280,
+        1480
       ]
     },
     {
@@ -1295,8 +1295,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        1430
+        3560,
+        1480
       ]
     },
     {
@@ -1312,8 +1312,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1650,
-        1610
+        3840,
+        1480
       ]
     },
     {
@@ -1325,8 +1325,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1650,
-        1250
+        4960,
+        1940
       ]
     },
     {
@@ -1358,8 +1358,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        1950,
-        1250
+        5800,
+        2040
       ]
     },
     {
@@ -1385,8 +1385,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        2250,
-        1250
+        6080,
+        2040
       ],
       "webhookId": "gm-factura",
       "credentials": {
@@ -1409,8 +1409,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2550,
-        1250
+        6360,
+        2040
       ],
       "credentials": {
         "postgres": {
@@ -1457,8 +1457,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1950,
-        1430
+        5240,
+        1940
       ],
       "credentials": {
         "postgres": {
@@ -1480,8 +1480,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        1430
+        5520,
+        1840
       ],
       "credentials": {
         "postgres": {
@@ -1577,8 +1577,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2550,
-        1250
+        5800,
+        1840
       ],
       "onError": "continueRegularOutput"
     },
@@ -1613,8 +1613,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2850,
-        1250
+        6080,
+        1840
       ],
       "credentials": {
         "postgres": {
@@ -1639,8 +1639,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        12750
+        6700,
+        5520
       ]
     },
     {
@@ -1654,8 +1654,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        12750
+        6980,
+        5520
       ],
       "credentials": {
         "postgres": {
@@ -1673,8 +1673,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        12750
+        7260,
+        5520
       ]
     },
     {
@@ -1693,8 +1693,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1050,
-        12750
+        7540,
+        5520
       ],
       "webhookId": "gm-followup",
       "credentials": {
@@ -1735,8 +1735,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1350,
-        12750
+        7820,
+        5520
       ],
       "credentials": {
         "postgres": {
@@ -1758,8 +1758,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1650,
-        12750
+        8100,
+        5520
       ],
       "credentials": {
         "postgres": {
@@ -1798,8 +1798,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1950,
-        12750
+        8380,
+        5520
       ]
     },
     {
@@ -1815,8 +1815,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        12750
+        8660,
+        5420
       ],
       "credentials": {
         "postgres": {
@@ -1832,8 +1832,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2250,
-        12930
+        8660,
+        5620
       ]
     },
     {
@@ -1923,8 +1923,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2550,
-        12750
+        8940,
+        5420
       ],
       "onError": "continueRegularOutput"
     },
@@ -1944,8 +1944,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        13900
+        2620,
+        6420
       ]
     },
     {
@@ -1959,8 +1959,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        13900
+        2900,
+        6320
       ],
       "credentials": {
         "postgres": {
@@ -1978,8 +1978,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        13900
+        3180,
+        6320
       ]
     },
     {
@@ -1998,8 +1998,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1050,
-        13900
+        3460,
+        6320
       ],
       "webhookId": "gm-recordatorio",
       "credentials": {
@@ -2022,8 +2022,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1350,
-        13900
+        3740,
+        6320
       ],
       "credentials": {
         "postgres": {
@@ -2059,8 +2059,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1650,
-        13900
+        4020,
+        6320
       ]
     },
     {
@@ -2150,8 +2150,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1950,
-        13900
+        4300,
+        6220
       ],
       "onError": "continueRegularOutput"
     },
@@ -2162,8 +2162,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1950,
-        14080
+        4300,
+        6420
       ]
     },
     {
@@ -2181,8 +2181,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        10450
+        2060,
+        4080
       ],
       "webhookId": "p4-01",
       "credentials": {
@@ -2201,8 +2201,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        10450
+        2340,
+        4080
       ]
     },
     {
@@ -2218,8 +2218,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        10450
+        2620,
+        4080
       ],
       "credentials": {
         "postgres": {
@@ -2242,8 +2242,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1050,
-        10450
+        2060,
+        4280
       ],
       "credentials": {
         "postgres": {
@@ -2339,8 +2339,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        10450
+        3180,
+        4140
       ],
       "onError": "continueRegularOutput"
     },
@@ -2353,8 +2353,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1650,
-        10450
+        3460,
+        4140
       ]
     },
     {
@@ -2373,8 +2373,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1950,
-        10450
+        3740,
+        4140
       ],
       "webhookId": "gm-testimonio",
       "credentials": {
@@ -2415,8 +2415,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        10450
+        4020,
+        4140
       ],
       "credentials": {
         "postgres": {
@@ -2436,8 +2436,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        15050
+        5040,
+        6220
       ],
       "credentials": {
         "postgres": {
@@ -2533,8 +2533,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        750,
-        15050
+        5320,
+        6220
       ],
       "onError": "continueRegularOutput"
     },
@@ -2547,8 +2547,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        16200
+        6060,
+        6220
       ]
     },
     {
@@ -2583,8 +2583,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        16200
+        6340,
+        6220
       ],
       "credentials": {
         "postgres": {
@@ -2607,8 +2607,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1050,
-        16200
+        6620,
+        6220
       ],
       "webhookId": "tg-error",
       "credentials": {
@@ -2633,8 +2633,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        2400
+        6820,
+        1400
       ],
       "webhookId": "p3-00"
     },
@@ -2647,8 +2647,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        2400
+        8220,
+        1500
       ]
     },
     {
@@ -2664,8 +2664,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        2400
+        8500,
+        1500
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -2684,8 +2684,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1050,
-        2400
+        8780,
+        1500
       ]
     },
     {
@@ -2699,8 +2699,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        2400
+        9060,
+        1500
       ]
     },
     {
@@ -2710,8 +2710,8 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        150,
-        16200
+        5780,
+        6220
       ]
     },
     {
@@ -2728,8 +2728,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        3550
+        200,
+        2740
       ],
       "webhookId": "lead-rechaza"
     },
@@ -2742,8 +2742,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        3550
+        1600,
+        2840
       ]
     },
     {
@@ -2759,8 +2759,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        3550
+        1880,
+        2840
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -2797,8 +2797,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        3550
+        2160,
+        2840
       ]
     },
     {
@@ -2888,8 +2888,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        3550
+        2440,
+        2640
       ],
       "onError": "continueRegularOutput"
     },
@@ -2906,8 +2906,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        3730
+        2440,
+        2840
       ]
     },
     {
@@ -2923,8 +2923,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        4090
+        2440,
+        3040
       ]
     },
     {
@@ -2941,8 +2941,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        4700
+        2900,
+        2840
       ],
       "webhookId": "lead-modifica"
     },
@@ -2955,8 +2955,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        4700
+        4300,
+        2940
       ]
     },
     {
@@ -2972,8 +2972,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        4700
+        4580,
+        2940
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -3010,8 +3010,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        4700
+        4860,
+        2940
       ]
     },
     {
@@ -3039,8 +3039,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1350,
-        4700
+        5140,
+        2640
       ],
       "credentials": {
         "postgres": {
@@ -3136,8 +3136,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        4880
+        5140,
+        2840
       ],
       "onError": "continueRegularOutput"
     },
@@ -3154,8 +3154,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        5060
+        5140,
+        3040
       ]
     },
     {
@@ -3171,8 +3171,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        5240
+        5140,
+        3240
       ]
     },
     {
@@ -3190,8 +3190,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        5850
+        5600,
+        2640
       ],
       "webhookId": "trabajo-estado",
       "credentials": {
@@ -3210,8 +3210,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        5850
+        5880,
+        2640
       ]
     },
     {
@@ -3227,8 +3227,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        5850
+        6160,
+        2640
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -3251,8 +3251,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1050,
-        5850
+        6440,
+        2640
       ]
     },
     {
@@ -3270,8 +3270,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        7000
+        6900,
+        2840
       ],
       "webhookId": "lead-cancelar",
       "credentials": {
@@ -3290,8 +3290,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        7000
+        7180,
+        2840
       ]
     },
     {
@@ -3307,8 +3307,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        7000
+        7460,
+        2840
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -3345,8 +3345,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        7000
+        7740,
+        2840
       ]
     },
     {
@@ -3436,8 +3436,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        7180
+        8020,
+        2840
       ],
       "onError": "continueRegularOutput"
     },
@@ -3454,8 +3454,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        7000
+        8020,
+        2640
       ]
     },
     {
@@ -3471,8 +3471,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        7540
+        8020,
+        3040
       ]
     },
     {
@@ -3490,8 +3490,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        8150
+        8480,
+        2940
       ],
       "webhookId": "cambio-aceptar",
       "credentials": {
@@ -3510,8 +3510,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        8150
+        8760,
+        2940
       ]
     },
     {
@@ -3527,8 +3527,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        8150
+        9040,
+        2940
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -3565,8 +3565,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        8150
+        9320,
+        2940
       ]
     },
     {
@@ -3578,8 +3578,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        8330
+        9600,
+        2840
       ]
     },
     {
@@ -3598,8 +3598,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1650,
-        8150
+        9880,
+        2840
       ],
       "webhookId": "f1a20056-0000-4056-8056-ff0000000056",
       "credentials": {
@@ -3696,8 +3696,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        8510
+        9600,
+        3040
       ],
       "onError": "continueRegularOutput"
     },
@@ -3714,8 +3714,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        8150
+        9600,
+        2640
       ]
     },
     {
@@ -3731,8 +3731,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        8690
+        9600,
+        3240
       ]
     },
     {
@@ -3750,8 +3750,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        9300
+        200,
+        4040
       ],
       "webhookId": "cambio-rechazar",
       "credentials": {
@@ -3770,8 +3770,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        9300
+        480,
+        4040
       ]
     },
     {
@@ -3787,8 +3787,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        9300
+        760,
+        4040
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -3825,8 +3825,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        9300
+        1040,
+        4040
       ]
     },
     {
@@ -3838,8 +3838,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        9480
+        1320,
+        4040
       ]
     },
     {
@@ -3858,8 +3858,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1650,
-        9300
+        1600,
+        4040
       ],
       "webhookId": "f1a20066-0000-4066-8066-ff0000000066",
       "credentials": {
@@ -3882,8 +3882,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        9300
+        1320,
+        3840
       ]
     },
     {
@@ -3899,8 +3899,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        9660
+        1320,
+        4240
       ]
     },
     {
@@ -3930,8 +3930,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1500,
-        1250
+        3840,
+        1680
       ]
     },
     {
@@ -3941,8 +3941,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1500,
-        1600
+        4120,
+        1880
       ]
     },
     {
@@ -3954,8 +3954,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1950,
-        1610
+        4120,
+        1480
       ]
     },
     {
@@ -3967,8 +3967,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1650,
-        1070
+        4400,
+        1940
       ]
     },
     {
@@ -3980,8 +3980,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2250,
-        1070
+        4680,
+        1940
       ]
     },
     {
@@ -3998,8 +3998,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        2000,
-        11600
+        6740,
+        4320
       ],
       "webhookId": "mp-notif-01"
     },
@@ -4012,8 +4012,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2300,
-        11600
+        7020,
+        4320
       ]
     },
     {
@@ -4029,8 +4029,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3200,
-        11600
+        7580,
+        4260
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -4067,8 +4067,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        3500,
-        11600
+        7860,
+        4300
       ]
     },
     {
@@ -4084,8 +4084,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        3800,
-        11600
+        8140,
+        4180
       ]
     },
     {
@@ -4101,8 +4101,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        3800,
-        11780
+        9260,
+        4500
       ]
     },
     {
@@ -4121,8 +4121,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1900,
-        280
+        3000,
+        700
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -4218,8 +4218,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1650,
-        -80
+        3000,
+        300
       ],
       "onError": "continueRegularOutput"
     },
@@ -4238,8 +4238,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        9000
+        4180,
+        300
       ],
       "webhookId": "propuesta-enviar",
       "credentials": {
@@ -4258,8 +4258,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        400,
-        9000
+        4460,
+        300
       ]
     },
     {
@@ -4275,8 +4275,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.4,
       "position": [
-        650,
-        9000
+        4740,
+        300
       ],
       "credentials": {
         "postgres": {
@@ -4315,8 +4315,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        900,
-        9000
+        5020,
+        300
       ]
     },
     {
@@ -4332,8 +4332,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1400,
-        8900
+        6420,
+        200
       ]
     },
     {
@@ -4349,8 +4349,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1150,
-        9150
+        5300,
+        400
       ]
     },
     {
@@ -4382,8 +4382,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1200,
-        460
+        2440,
+        600
       ]
     },
     {
@@ -4393,15 +4393,15 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1500,
-        460
+        2720,
+        700
       ]
     },
     {
       "parameters": {
         "content": "## ♻️ Reconciliación de facturas (RAMA 9, cron cada 30 min)\nFrontera transaccional (S5): entre `ACEPTADO` y la fila de `facturas` median cuatro servicios externos y ninguno participa de una transacción. Este proceso busca leads **ACEPTADO sin factura** con más de `RECONCILIACION_GRACIA_MINUTOS` de antigüedad (para no pisar una aceptación en vuelo) y emite la factura que faltaba. **Idempotente**: el INSERT lleva `WHERE NOT EXISTS` por `lead_id` y el `factura_id` es determinista, así que correrlo dos veces no factura dos veces. No usa Gmail: persiste, avisa por Telegram y deja la factura en el circuito de recordatorios de la RAMA 4.",
-        "height": 470,
-        "width": 2730,
+        "height": 640,
+        "width": 2220,
         "color": 3
       },
       "id": "s5notarama9reconciliacion000001",
@@ -4409,8 +4409,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        17225
+        7000,
+        6060
       ]
     },
     {
@@ -4429,8 +4429,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        17350
+        7080,
+        6340
       ]
     },
     {
@@ -4444,8 +4444,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        17350
+        7360,
+        6340
       ],
       "credentials": {
         "postgres": {
@@ -4463,8 +4463,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        17350
+        7640,
+        6340
       ]
     },
     {
@@ -4476,8 +4476,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        17350
+        7920,
+        6340
       ]
     },
     {
@@ -4493,8 +4493,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1650,
-        17350
+        8200,
+        6340
       ],
       "credentials": {
         "postgres": {
@@ -4533,8 +4533,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1950,
-        17350
+        8480,
+        6340
       ]
     },
     {
@@ -4550,8 +4550,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        17350
+        8760,
+        6240
       ],
       "credentials": {
         "postgres": {
@@ -4647,8 +4647,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2550,
-        17350
+        9040,
+        6240
       ],
       "onError": "continueRegularOutput"
     },
@@ -4659,15 +4659,15 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1950,
-        17530
+        8760,
+        6440
       ]
     },
     {
       "parameters": {
         "content": "## 🔔 Propuestas pendientes de enviar (RAMA 10, cron cada 2h L-V 9-17)\nRiesgo declarado en §4.3.1 y §4.9: un lead **HOT/WARM** califica y queda en `NUEVO` esperando que el profesional le fije precio, plazo y alcance (`POST /propuesta-enviar`). Hoy solo hay un aviso puntual al calificarlo (`Telegram - Propuesta Por Enviar`) y su visibilidad en el tablero (sección «Propuestas por enviar»); si el profesional no actúa, nadie vuelve a insistir. Este cron **reinsiste** mientras `precio_propuesto` siga NULL y hayan pasado más de `PROPUESTA_PENDIENTE_HORAS_UMBRAL` horas (24 por defecto) desde `fecha_ingreso`. Es un **recordatorio, no una acción automática**: no envía la propuesta ni toca `estado` — sólo notifica por Telegram, con cuántas propuestas siguen pendientes en total y hace cuánto espera cada una.",
-        "height": 470,
-        "width": 1550,
+        "height": 500,
+        "width": 1100,
         "color": 4
       },
       "id": "s10notarama10propuestas0001",
@@ -4675,8 +4675,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        17750
+        9420,
+        6060
       ]
     },
     {
@@ -4695,8 +4695,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        17875
+        9500,
+        6300
       ]
     },
     {
@@ -4710,8 +4710,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        17875
+        9780,
+        6300
       ],
       "credentials": {
         "postgres": {
@@ -4729,8 +4729,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        17875
+        10060,
+        6300
       ]
     },
     {
@@ -4820,8 +4820,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1050,
-        17875
+        10340,
+        6300
       ],
       "onError": "continueRegularOutput"
     },
@@ -4836,8 +4836,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        14300
+        2900,
+        6520
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -4856,8 +4856,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        14300
+        3180,
+        6520
       ]
     },
     {
@@ -4947,8 +4947,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1050,
-        14300
+        3460,
+        6520
       ],
       "onError": "continueRegularOutput"
     },
@@ -4967,8 +4967,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        18550
+        200,
+        7920
       ],
       "webhookId": "factura-anular",
       "credentials": {
@@ -4987,8 +4987,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        18550
+        480,
+        7920
       ]
     },
     {
@@ -5004,8 +5004,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        18550
+        760,
+        7920
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -5044,8 +5044,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        18550
+        1040,
+        7920
       ]
     },
     {
@@ -5061,8 +5061,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        18460
+        1320,
+        7620
       ]
     },
     {
@@ -5152,8 +5152,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1350,
-        18640
+        1320,
+        7820
       ],
       "onError": "continueRegularOutput"
     },
@@ -5170,15 +5170,15 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        18820
+        1320,
+        8220
       ]
     },
     {
       "parameters": {
         "content": "## 🧾 Anular factura (dashboard)\nEl freelancer **anula** una factura desde el panel (`POST /factura-anular`, Header Auth) → UPDATE condicional: sólo si está `PENDIENTE` o `VENCIDA`, nunca si ya está `COBRADO` → Telegram. Cierra la transición `ANULADA` del enum `pago_estado` (§4.8 y Cap. 8, punto 7): estaba prevista en el esquema pero ningún nodo la escribía.",
-        "height": 830,
-        "width": 1530,
+        "height": 1040,
+        "width": 1660,
         "color": 2
       },
       "id": "s12notaanularfactura0001",
@@ -5186,8 +5186,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        18450
+        120,
+        7440
       ]
     },
     {
@@ -5199,8 +5199,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        150,
-        -160
+        480,
+        500
       ]
     },
     {
@@ -5216,8 +5216,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        420,
-        -160
+        760,
+        500
       ],
       "credentials": {
         "postgres": {
@@ -5235,8 +5235,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        690,
-        -160
+        1040,
+        500
       ]
     },
     {
@@ -5268,8 +5268,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        960,
-        -160
+        1320,
+        500
       ]
     },
     {
@@ -5285,8 +5285,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1230,
-        -160
+        1600,
+        400
       ],
       "credentials": {
         "postgres": {
@@ -5304,8 +5304,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        150,
-        2140
+        7100,
+        1400
       ]
     },
     {
@@ -5321,8 +5321,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        420,
-        2140
+        7380,
+        1400
       ],
       "credentials": {
         "postgres": {
@@ -5340,8 +5340,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        690,
-        2140
+        7660,
+        1400
       ]
     },
     {
@@ -5373,8 +5373,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        960,
-        2140
+        7940,
+        1400
       ]
     },
     {
@@ -5390,8 +5390,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1230,
-        2140
+        8220,
+        1300
       ]
     },
     {
@@ -5403,8 +5403,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        150,
-        990
+        480,
+        1480
       ]
     },
     {
@@ -5420,8 +5420,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        420,
-        990
+        760,
+        1480
       ],
       "credentials": {
         "postgres": {
@@ -5439,8 +5439,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        690,
-        990
+        1040,
+        1480
       ]
     },
     {
@@ -5472,8 +5472,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        960,
-        990
+        1320,
+        1480
       ]
     },
     {
@@ -5489,8 +5489,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1230,
-        990
+        1600,
+        1380
       ]
     },
     {
@@ -5502,8 +5502,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        150,
-        3290
+        480,
+        2740
       ]
     },
     {
@@ -5519,8 +5519,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        420,
-        3290
+        760,
+        2740
       ],
       "credentials": {
         "postgres": {
@@ -5538,8 +5538,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        690,
-        3290
+        1040,
+        2740
       ]
     },
     {
@@ -5571,8 +5571,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        960,
-        3290
+        1320,
+        2740
       ]
     },
     {
@@ -5588,8 +5588,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1230,
-        3290
+        1600,
+        2640
       ]
     },
     {
@@ -5601,8 +5601,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        150,
-        4440
+        3180,
+        2840
       ]
     },
     {
@@ -5618,8 +5618,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        420,
-        4440
+        3460,
+        2840
       ],
       "credentials": {
         "postgres": {
@@ -5637,8 +5637,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        690,
-        4440
+        3740,
+        2840
       ]
     },
     {
@@ -5670,8 +5670,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        960,
-        4440
+        4020,
+        2840
       ]
     },
     {
@@ -5687,8 +5687,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1230,
-        4440
+        4300,
+        2740
       ]
     },
     {
@@ -5704,8 +5704,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3800,
-        11960
+        8140,
+        4600
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -5724,8 +5724,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4100,
-        11960
+        8420,
+        4540
       ]
     },
     {
@@ -5741,8 +5741,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4400,
-        11880
+        8980,
+        4600
       ],
       "credentials": {
         "postgres": {
@@ -5838,8 +5838,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4400,
-        12040
+        8980,
+        4800
       ],
       "onError": "continueRegularOutput"
     },
@@ -5870,8 +5870,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1350,
-        18280
+        1320,
+        8020
       ]
     },
     {
@@ -5894,8 +5894,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        1650,
-        18280
+        1600,
+        8020
       ],
       "onError": "continueRegularOutput"
     },
@@ -5908,8 +5908,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2250,
-        1340
+        5520,
+        2040
       ]
     },
     {
@@ -5925,8 +5925,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        1610
+        4400,
+        1340
       ],
       "credentials": {
         "postgres": {
@@ -5947,8 +5947,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        4600,
-        11000
+        4480,
+        3780
       ],
       "webhookId": "e6340000-28b2-486b-bff8-c761e3711a55",
       "id": "eb7d53c7-87ba-4052-8897-ba52067b9ee4"
@@ -5961,8 +5961,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4900,
-        11000
+        4760,
+        3780
       ],
       "id": "bbc698b5-fa5e-4175-b703-e0655bb23c87"
     },
@@ -5978,8 +5978,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        5200,
-        11000
+        5040,
+        3780
       ],
       "credentials": {
         "postgres": {
@@ -5998,8 +5998,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5500,
-        11000
+        5320,
+        3780
       ],
       "id": "73439d9a-cb2a-456f-92ce-2e1063d37010"
     },
@@ -6029,8 +6029,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        5800,
-        11000
+        5600,
+        3780
       ],
       "id": "b7dd67b9-8189-4550-a072-8712e64ee22d"
     },
@@ -6057,8 +6057,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6100,
-        10900
+        5880,
+        3680
       ],
       "onError": "continueRegularOutput",
       "id": "84a36521-09aa-46c8-ac4e-26c9f65270c0"
@@ -6075,8 +6075,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        6400,
-        10900
+        6160,
+        3680
       ],
       "credentials": {
         "postgres": {
@@ -6111,8 +6111,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        6700,
-        10900
+        6440,
+        3680
       ],
       "id": "b2282c29-48f6-4c78-97da-f15ce85ff435"
     },
@@ -6140,8 +6140,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        6100,
-        11120
+        5880,
+        3880
       ],
       "id": "105148e7-3752-4a2e-a9c8-41d96c2a5ed7"
     },
@@ -6171,8 +6171,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2600,
-        11600
+        7300,
+        4320
       ],
       "id": "61e94ad8-71a2-4c5d-9cdc-c1b3dee23bd5"
     },
@@ -6188,8 +6188,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        2900,
-        11800
+        7860,
+        4700
       ],
       "id": "b00282e4-c606-4209-abbe-6eba52674fef"
     },
@@ -6205,8 +6205,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        4600,
-        12000
+        200,
+        5260
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -6225,8 +6225,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4900,
-        12000
+        480,
+        5260
       ],
       "id": "1f35ca40-cc36-4e0f-9414-2ada14df6cdb"
     },
@@ -6242,8 +6242,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        5200,
-        12000
+        760,
+        5260
       ],
       "credentials": {
         "postgres": {
@@ -6280,8 +6280,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        5500,
-        12000
+        1040,
+        5260
       ],
       "id": "4f228ae0-08d4-4a79-9f5a-12a87ffb86f0"
     },
@@ -6312,8 +6312,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5800,
-        12120
+        1320,
+        5360
       ],
       "id": "9603e16b-cfed-4358-9e40-f0225583a8f3"
     },
@@ -6329,8 +6329,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        6100,
-        12120
+        1600,
+        5360
       ],
       "credentials": {
         "postgres": {
@@ -6363,8 +6363,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6400,
-        12000
+        1880,
+        5260
       ],
       "id": "e4a1ba9b-c6a2-4cff-a801-3170e951bb5e"
     },
@@ -6380,8 +6380,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        6700,
-        12000
+        2160,
+        5260
       ],
       "id": "0d2e96ab-000b-4402-9790-122fa489e56e"
     },
@@ -6397,8 +6397,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        4600,
-        12450
+        4720,
+        5360
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -6417,8 +6417,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4900,
-        12450
+        5000,
+        5360
       ],
       "id": "5cac0949-dccf-471e-a404-cb49a15a8105"
     },
@@ -6434,8 +6434,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        5200,
-        12450
+        5280,
+        5360
       ],
       "credentials": {
         "postgres": {
@@ -6472,8 +6472,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        5500,
-        12450
+        5560,
+        5360
       ],
       "id": "def29f1b-9d44-40b4-8035-a72621b88ca0"
     },
@@ -6496,8 +6496,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5800,
-        12350
+        5840,
+        5260
       ],
       "id": "453b2184-9575-4e57-b7e0-13cd38a39708"
     },
@@ -6513,8 +6513,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        6100,
-        12350
+        6120,
+        5260
       ],
       "credentials": {
         "postgres": {
@@ -6537,7 +6537,7 @@
       "typeVersion": 1.1,
       "position": [
         6400,
-        12350
+        5260
       ],
       "id": "116ebba1-1d96-432b-8133-b9a85d1a511c"
     },
@@ -6553,16 +6553,16 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        5800,
-        12570
+        5840,
+        5460
       ],
       "id": "8e8aeb27-cf22-4ff3-a180-802cf174b9c9"
     },
     {
       "parameters": {
         "content": "## 🙅 Rechazar pedido (dashboard)\nEl desarrollador **no puede tomar** un pedido → PERDIDO. Si el cliente lo autorizó (`compartir_bolsa`), puede mandarlo a la **bolsa** con un resumen sin datos personales. Correo al cliente en los dos casos. Tope y vencimiento: `BOLSA_TOPE` (5) y `BOLSA_DIAS` (7).",
-        "height": 830,
-        "width": 1830,
+        "height": 840,
+        "width": 1660,
         "color": 2
       },
       "id": "1f924954-33df-44ea-bbf6-d02fc897e3ac",
@@ -6570,8 +6570,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        19325
+        1980,
+        7440
       ]
     },
     {
@@ -6589,8 +6589,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        19450
+        2060,
+        7820
       ],
       "webhookId": "3658ad0b-6f5d-46e4-af0a-93c6b63616f2",
       "credentials": {
@@ -6609,8 +6609,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        19450
+        2340,
+        7820
       ]
     },
     {
@@ -6626,8 +6626,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        19450
+        2620,
+        7820
       ],
       "credentials": {
         "postgres": {
@@ -6664,8 +6664,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        19450
+        2900,
+        7820
       ]
     },
     {
@@ -6681,8 +6681,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        19450
+        3180,
+        7620
       ]
     },
     {
@@ -6694,8 +6694,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        19630
+        3180,
+        7820
       ]
     },
     {
@@ -6714,8 +6714,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1650,
-        19630
+        3460,
+        7820
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -6737,15 +6737,15 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        19810
+        3180,
+        8020
       ]
     },
     {
       "parameters": {
         "content": "## 🎯 Elección del cliente (bolsa)\nEl cliente abre **/elegir/<token>** y ve las postulaciones (`bolsa-postulaciones`, GET). Al elegir (`bolsa-elegir`, POST) el pedido pasa a **ASIGNADO**, el lead se muda al espacio elegido y vuelve a **NUEVO** sin los términos anteriores y con token de aceptación nuevo. Correo al cliente y al elegido, y aviso en su panel. El token es un UUID aleatorio (como el de pago). Si el proyecto lo publicó un cliente (etapa 6), el lead **se crea** en el espacio elegido con los datos de contacto que dejó, y se le calcula el puntaje (copia de Code - Scoring).",
-        "height": 1650,
-        "width": 1830,
+        "height": 1240,
+        "width": 1940,
         "color": 5
       },
       "id": "adb7fbbc-3391-4e96-adc5-1bde5d6abd28",
@@ -6753,8 +6753,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        20325
+        3840,
+        7440
       ]
     },
     {
@@ -6771,8 +6771,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        20450
+        6060,
+        7440
       ],
       "webhookId": "ccf36504-2727-48c1-9cfa-5865278f9d25"
     },
@@ -6785,8 +6785,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        20450
+        6340,
+        7440
       ]
     },
     {
@@ -6802,8 +6802,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        20450
+        6620,
+        7440
       ],
       "credentials": {
         "postgres": {
@@ -6826,8 +6826,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1050,
-        20450
+        6900,
+        7440
       ]
     },
     {
@@ -6844,8 +6844,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        150,
-        20950
+        3920,
+        8020
       ],
       "webhookId": "9cd68583-1bba-4d85-b803-1592b45124e4"
     },
@@ -6858,8 +6858,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        450,
-        20950
+        4200,
+        8020
       ]
     },
     {
@@ -6875,8 +6875,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        20950
+        4480,
+        8020
       ],
       "credentials": {
         "postgres": {
@@ -6913,8 +6913,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1050,
-        20950
+        4760,
+        8020
       ]
     },
     {
@@ -6930,8 +6930,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        20950
+        5040,
+        7620
       ]
     },
     {
@@ -6943,8 +6943,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        21150
+        5040,
+        7820
       ]
     },
     {
@@ -6963,8 +6963,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1650,
-        21150
+        5320,
+        7820
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -7060,8 +7060,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1650,
-        21550
+        5040,
+        8020
       ],
       "onError": "continueRegularOutput"
     },
@@ -7078,15 +7078,15 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1350,
-        21350
+        5040,
+        8420
       ]
     },
     {
       "parameters": {
         "content": "## 📬 RAMA 11 · Bolsa de proyectos (cron cada 15 min)\nUna consulta resuelve los tres casos: **invitar** al cliente a elegir (llegó al tope `BOLSA_TOPE` o venció con postulaciones; se marca `eleccion_avisada_en` para no repetir), **vencido sin postulaciones** y **vencido sin elección** (`BOLSA_DIAS_ELECCION`, 7). Correo al cliente en los dos primeros; aviso a quien lo publicó en los tres. También cubre los proyectos que publica un cliente (etapa 6): sin lead ni publicador, el nombre y el correo salen del contacto del proyecto y no hay aviso a un espacio.",
-        "height": 700,
-        "width": 1530,
+        "height": 680,
+        "width": 1100,
         "color": 6
       },
       "id": "c1a3d720-99ff-46c9-9ecd-607c31ebee22",
@@ -7094,8 +7094,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        21825
+        7120,
+        7440
       ]
     },
     {
@@ -7114,8 +7114,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        21950
+        7200,
+        7760
       ]
     },
     {
@@ -7131,8 +7131,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        21950
+        7480,
+        7760
       ],
       "credentials": {
         "postgres": {
@@ -7150,8 +7150,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        21950
+        7760,
+        7660
       ]
     },
     {
@@ -7170,8 +7170,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1050,
-        21950
+        8040,
+        7660
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -7267,8 +7267,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1050,
-        22170
+        8040,
+        7860
       ],
       "onError": "continueRegularOutput"
     },
@@ -7299,8 +7299,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1350,
-        22000
+        5040,
+        8220
       ]
     },
     {
@@ -7312,8 +7312,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1650,
-        22000
+        5320,
+        8220
       ]
     },
     {
@@ -7329,8 +7329,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1950,
-        22000
+        5600,
+        8220
       ],
       "credentials": {
         "postgres": {
@@ -7366,15 +7366,15 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        750,
-        22170
+        7760,
+        7860
       ]
     },
     {
       "parameters": {
         "content": "## 💬 RAMA 12 · Mensajes sin leer (cron cada 5 min)\nJunta los mensajes con más de `MENSAJES_AVISO_MINUTOS` (10) sin leer, los marca como avisados en la misma consulta y manda **un correo por persona** con cada proyecto y su enlace: el desarrollador a su Bolsa, el cliente con cuenta a «Mis proyectos», el que no tiene cuenta a /elegir/<token>.",
-        "height": 450,
-        "width": 1230,
+        "height": 440,
+        "width": 1380,
         "color": 4
       },
       "id": "20645492-1d39-4cc7-9dc1-a1b2fada5c99",
@@ -7382,8 +7382,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        22975
+        8420,
+        7440
       ]
     },
     {
@@ -7402,8 +7402,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        23100
+        8500,
+        7620
       ]
     },
     {
@@ -7419,8 +7419,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        23100
+        8780,
+        7620
       ],
       "credentials": {
         "postgres": {
@@ -7438,8 +7438,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        23100
+        9060,
+        7620
       ]
     },
     {
@@ -7458,8 +7458,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1050,
-        23100
+        9340,
+        7620
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -7471,8 +7471,8 @@
     {
       "parameters": {
         "content": "## 🔔 RAMA 13 · Alertas de la bolsa (cron cada 15 min)\nToma los proyectos abiertos que todavía no se anunciaron (los marca en la misma consulta) y los cruza con los espacios que **ofrecen ese servicio**, con el alta completa, que no lo publicaron y cuyo **presupuesto mínimo** se cumple. Aviso en el panel para todos; **un correo agrupado** para los que lo pidieron.",
-        "height": 700,
-        "width": 1230,
+        "height": 640,
+        "width": 1100,
         "color": 6
       },
       "id": "6b3a87e8-0bf8-4898-b677-a5855236facb",
@@ -7480,8 +7480,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        23675
+        10000,
+        7440
       ]
     },
     {
@@ -7500,8 +7500,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        23800
+        10080,
+        7720
       ]
     },
     {
@@ -7515,8 +7515,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        23800
+        10360,
+        7720
       ],
       "credentials": {
         "postgres": {
@@ -7534,8 +7534,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        750,
-        23800
+        10640,
+        7620
       ]
     },
     {
@@ -7554,8 +7554,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1050,
-        23800
+        10920,
+        7620
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -7651,8 +7651,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        750,
-        24020
+        10640,
+        7820
       ],
       "onError": "continueRegularOutput"
     },
@@ -7683,8 +7683,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1650,
-        900
+        4120,
+        1680
       ]
     },
     {
@@ -7696,8 +7696,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1950,
-        800
+        4400,
+        1540
       ]
     },
     {
@@ -7716,8 +7716,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        2250,
-        800
+        4680,
+        1540
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -7814,8 +7814,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1950,
-        620
+        4400,
+        1740
       ],
       "onError": "continueRegularOutput"
     },
@@ -7831,8 +7831,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        4600,
-        12100
+        2460,
+        5360
       ],
       "webhookId": "87aea253-6903-4dc5-aafe-5a9989a817aa"
     },
@@ -7845,8 +7845,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4900,
-        12100
+        2740,
+        5360
       ]
     },
     {
@@ -7862,8 +7862,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        5200,
-        12100
+        3020,
+        5360
       ],
       "credentials": {
         "postgres": {
@@ -7882,8 +7882,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5500,
-        12100
+        3300,
+        5360
       ]
     },
     {
@@ -7913,8 +7913,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        5800,
-        12100
+        3580,
+        5360
       ]
     },
     {
@@ -7940,8 +7940,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6100,
-        12000
+        3860,
+        5260
       ],
       "onError": "continueRegularOutput",
       "id": "21689c54-12ae-490b-a94c-9916fdaf6e5c"
@@ -7959,8 +7959,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        6400,
-        12000
+        4140,
+        5260
       ],
       "credentials": {
         "postgres": {
@@ -7994,8 +7994,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        6700,
-        12000
+        4420,
+        5260
       ],
       "id": "d550a648-dda4-4ac0-bc30-f3167a548fb6"
     },
@@ -8023,8 +8023,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        6100,
-        12220
+        3860,
+        5460
       ],
       "id": "58942ebe-edd5-4d25-9dfa-28fed55a04ba"
     },
@@ -8055,8 +8055,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        3200,
-        11950
+        7580,
+        4460
       ]
     },
     {
@@ -8072,8 +8072,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3500,
-        11850
+        7860,
+        4500
       ],
       "credentials": {
         "postgres": {
@@ -8096,8 +8096,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        3800,
-        11700
+        8700,
+        4400
       ]
     },
     {
@@ -8128,8 +8128,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        3800,
-        11950
+        8140,
+        4400
       ]
     },
     {
@@ -8219,8 +8219,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4100,
-        11850
+        8420,
+        4340
       ],
       "onError": "continueRegularOutput"
     },
@@ -8237,8 +8237,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4100,
-        12100
+        8420,
+        4740
       ],
       "credentials": {
         "postgres": {
@@ -8250,8 +8250,8 @@
     {
       "parameters": {
         "content": "## 💸 RAMA 14 · Pago protegido por hitos (cron cada 5 min)\n1. **Libera** las entregas que nadie aprobó ni disputó a tiempo (`liberar_vencidos()`).\n2. **Mueve la plata** en Stripe: transfiere al desarrollador lo liberado menos la comisión y reembolsa al cliente lo devuelto (`hitos_por_mover()`). La clave de idempotencia es el id del hito y el movimiento: si el cron corre dos veces, Stripe devuelve el mismo objeto. `hito_movido()` lo registra una sola vez; un movimiento que falla queda en logs y se reintenta en la próxima pasada.\n3. **Avisa** cada evento de la línea de tiempo (se marcan en la misma consulta): correo al cliente con la marca del espacio y aviso en el panel del desarrollador (una disputa es crítica: también le llega a la plataforma).",
-        "height": 760,
-        "width": 2130,
+        "height": 1180,
+        "width": 2220,
         "color": 5
       },
       "id": "530e483b-09fe-495d-afa7-ba76052486a8",
@@ -8259,8 +8259,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        95,
-        24375
+        120,
+        6060
       ]
     },
     {
@@ -8279,8 +8279,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        150,
-        24700
+        200,
+        6740
       ]
     },
     {
@@ -8294,8 +8294,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        450,
-        24700
+        480,
+        6540
       ],
       "credentials": {
         "postgres": {
@@ -8318,8 +8318,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        24550
+        760,
+        6400
       ],
       "credentials": {
         "postgres": {
@@ -8338,8 +8338,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1050,
-        24550
+        1040,
+        6400
       ]
     },
     {
@@ -8369,8 +8369,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1350,
-        24550
+        1320,
+        6400
       ],
       "onError": "continueRegularOutput",
       "id": "7bed0f12-f30d-433a-92cf-2d31f1dc0315"
@@ -8388,8 +8388,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1650,
-        24550
+        1600,
+        6340
       ],
       "credentials": {
         "postgres": {
@@ -8426,8 +8426,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1950,
-        24550
+        1880,
+        6280
       ]
     },
     {
@@ -8443,8 +8443,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2250,
-        24500
+        2160,
+        6280
       ],
       "credentials": {
         "postgres": {
@@ -8464,8 +8464,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        750,
-        24850
+        760,
+        6600
       ],
       "credentials": {
         "postgres": {
@@ -8484,8 +8484,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1050,
-        24850
+        1040,
+        6600
       ]
     },
     {
@@ -8515,8 +8515,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1350,
-        24850
+        1320,
+        6600
       ]
     },
     {
@@ -8535,8 +8535,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1650,
-        24780
+        1600,
+        6540
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -8633,8 +8633,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1950,
-        24910
+        1880,
+        6880
       ]
     },
     {
@@ -8724,8 +8724,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1950,
-        25070
+        1880,
+        6680
       ]
     },
     {
@@ -8755,8 +8755,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1650,
-        24950
+        1600,
+        6740
       ]
     },
     {
@@ -8786,8 +8786,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        950,
-        10450
+        2900,
+        4080
       ]
     },
     {
@@ -8803,8 +8803,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1250,
-        10350
+        3180,
+        3840
       ]
     },
     {
@@ -8820,8 +8820,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1250,
-        10550
+        3180,
+        4340
       ]
     },
     {
@@ -8837,8 +8837,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3100,
-        24700
+        1880,
+        6480
       ],
       "credentials": {
         "postgres": {
@@ -8860,8 +8860,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3100,
-        24900
+        2160,
+        6780
       ],
       "credentials": {
         "postgres": {
@@ -8883,8 +8883,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2800,
-        23000
+        9620,
+        7620
       ],
       "credentials": {
         "postgres": {
@@ -8921,8 +8921,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        4260,
-        11960
+        8700,
+        4600
       ]
     },
     {
@@ -8936,8 +8936,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        7430,
-        12800
+        480,
+        6740
       ],
       "credentials": {
         "postgres": {
@@ -9034,8 +9034,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        7650,
-        12800
+        760,
+        6800
       ],
       "onError": "continueRegularOutput"
     },
@@ -9050,8 +9050,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        7430,
-        13100
+        480,
+        6940
       ],
       "credentials": {
         "postgres": {
@@ -9148,8 +9148,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        7650,
-        13100
+        1040,
+        7000
       ],
       "alwaysOutputData": true
     },
@@ -9183,8 +9183,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2450,
-        100
+        6140,
+        200
       ]
     },
     {
@@ -9200,8 +9200,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        2670,
-        220
+        6420,
+        400
       ]
     },
     {
@@ -9215,8 +9215,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        7530,
-        13100
+        760,
+        7000
       ],
       "credentials": {
         "postgres": {
@@ -9239,8 +9239,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        7870,
-        13100
+        1320,
+        7000
       ],
       "credentials": {
         "postgres": {

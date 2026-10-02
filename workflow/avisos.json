@@ -37,8 +37,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        240,
-        300
+        200,
+        440
       ]
     },
     {
@@ -50,8 +50,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
-        300
+        480,
+        440
       ]
     },
     {
@@ -67,8 +67,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        680,
-        300
+        760,
+        440
       ],
       "credentials": {
         "postgres": {
@@ -86,8 +86,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        200
+        1040,
+        340
       ]
     },
     {
@@ -104,8 +104,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1120,
-        200
+        1320,
+        340
       ],
       "credentials": {
         "telegramApi": {
@@ -124,8 +124,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        420
+        1040,
+        540
       ]
     },
     {
@@ -143,8 +143,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        1120,
-        420
+        1320,
+        540
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -158,16 +158,16 @@
     {
       "parameters": {
         "content": "## Subflujo — Avisos al desarrollador\n\nPunto único de aviso del flujo principal (ver `docs/diseno-capa-notificaciones.md`). Con la plataforma compartida, cada aviso es **del espacio** del pedido o de la factura que lo origina:\n\n1. Lo registra en `avisos`, que el desarrollador ve en su panel.\n2. Lo manda por **Telegram** al chat que vinculó (opcional) y, si es crítico o no es de ningún espacio, al de la plataforma.\n3. Si pide una acción (`atencion` / `critico`), también **por correo** a su `email_contacto`.\n\n**Entrada:** `{ tipo, nivel, mensaje, lead_id, factura_id, espacio_id }`. El espacio sale de `espacio_id` o, si no viene, del lead o de la factura.\n\n**ACK del hito:** en la rama de hitos, `waitForSubWorkflow: true` confirma sólo que el aviso quedó persistido en `avisos` (panel). La inserción no tolera errores. Telegram y Gmail son canales opcionales con `continueRegularOutput`: su falla no bloquea el ACK ni reintenta el evento, para no duplicar avisos ya persistidos. Las demás llamadas no esperan al subflujo; `Telegram - Error Critico` sigue directo al chat de la plataforma.",
-        "height": 420,
-        "width": 520
+        "height": 800,
+        "width": 1380
       },
       "id": "a7150001-0000-4001-8001-000000000006",
       "name": "Sticky Note",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        220,
-        -200
+        120,
+        0
       ]
     }
   ],
