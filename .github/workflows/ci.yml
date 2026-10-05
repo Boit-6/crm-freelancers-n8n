@@ -110,8 +110,15 @@ jobs:
 
       - run: npm ci
 
-      - name: Auditoría de dependencias
+      # Lo que se despliega bloquea el build. Las herramientas de desarrollo se
+      # auditan aparte y sólo avisan: un aviso sin versión corregida en una
+      # dependencia del linter no tiene que frenar el resto.
+      - name: Auditoría de dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Auditoría de dependencias de desarrollo (aviso)
         run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Lint
         run: npm run lint -- --max-warnings 0
