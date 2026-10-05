@@ -7,6 +7,14 @@ publican proyectos y el pago se protege por hitos.
 
 **Stack:** Next.js 16 · React 19 · n8n · Supabase (PostgreSQL + RLS + Realtime) · Stripe Connect · Gotenberg · Docker
 
+## Demo en vivo
+
+🔗 **https://formularioleads-ecru.vercel.app**: en la pantalla de ingreso hay dos cuentas de prueba, una de
+desarrollador y una de cliente, que entran con un clic.
+
+> Por ahora están en línea el front y la base (panel, perfiles, directorio). El formulario, las propuestas
+> y los pagos dependen de n8n, que todavía no está desplegado: el recorrido completo se ve en el video.
+
 ## Demo en video
 
 [![Ver la demo (1:40)](docs/media/portada.jpg)](docs/media/demo.mp4)

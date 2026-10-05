@@ -1,0 +1,14 @@
+# Configuración de Supabase que la demo necesita distinta de la de fábrica.
+# Se aplica con: npx supabase link --project-ref <ref> && npx supabase config push
+project_id = "formularioleads"
+
+[auth]
+# La URL pública del front: a ella vuelven los enlaces de los correos de Auth.
+site_url = "https://formularioleads-ecru.vercel.app"
+additional_redirect_urls = ["https://formularioleads-ecru.vercel.app/auth/confirm"]
+# Demo pública: las cuentas se crean con scripts/demo-cuentas.mjs, no por registro.
+enable_signup = false
+
+[auth.email]
+# Cambiar el correo exige confirmarlo en la casilla vieja y en la nueva.
+secure_email_change_enabled = true

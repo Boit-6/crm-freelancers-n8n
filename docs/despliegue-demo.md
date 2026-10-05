@@ -62,6 +62,21 @@ NEXT_PUBLIC_DEMO_CLIENTE_CLAVE=<clave pública>
 Con `NEXT_PUBLIC_DEMO=1`, todas las páginas muestran el aviso de demo, el login ofrece «Entrar como
 desarrollador» y «Entrar como cliente» con un clic, y `/cliente/entrar` explica que el enlace mágico no llega.
 
+## Supabase
+
+Con la CLI de Supabase y la sesión iniciada (`npx supabase login`, en una terminal interactiva):
+
+```bash
+npx supabase projects create formularioleads --org-id <org> --db-password <clave> --region sa-east-1
+npx supabase link --project-ref <ref>
+psql "<cadena del Session pooler>" -v ON_ERROR_STOP=1 -f db/schema.sql
+npx supabase config push          # aplica supabase/config.toml
+```
+
+`supabase/config.toml` versiona lo que la demo cambia respecto de la configuración de fábrica: la URL del
+sitio, la redirección de `/auth/confirm` y el registro apagado. Si cambia el dominio del front, se edita
+ahí y se vuelve a correr `config push`.
+
 ## Cuentas de la demo
 
 Desde tu PC, con el esquema ya aplicado:

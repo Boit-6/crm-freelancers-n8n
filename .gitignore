@@ -35,3 +35,7 @@ workflow/*.backup-*.json
 
 # Reportes que generan las pruebas contra el sistema levantado
 reportes/
+
+# Estado local de la CLI de Supabase
+supabase/.temp/
+supabase/.branches/

@@ -26,7 +26,19 @@
 --     respeten las políticas de las tablas subyacentes.
 -- =====================================================================
 
+-- El rol de la conexión de n8n tiene que existir antes que cualquier GRANT:
+-- en una base nueva, las funciones de más abajo ya le dan permisos. Sus
+-- privilegios y políticas se definen en la sección de RLS.
+DO $$ BEGIN CREATE ROLE n8n_writer NOLOGIN;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- El rol de la conexión de n8n tiene que existir antes del primer GRANT que
+-- lo nombra. Sus permisos y políticas se definen más abajo, en la sección de
+-- seguridad; acá sólo se crea, sin LOGIN (se habilita al desplegar).
+DO $$ BEGIN CREATE ROLE n8n_writer NOLOGIN;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 -- ---------------------------------------------------------------------
 -- Tipos enumerados
