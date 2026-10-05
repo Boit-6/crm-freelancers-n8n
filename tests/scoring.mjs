@@ -5,8 +5,7 @@
 // el workflow). Este test cumple dos funciones:
 //
 //   1. REGRESIÓN: con la configuración por defecto, el resultado tiene que ser
-//      idéntico al del algoritmo original —el que documenta la Tabla 4 de la
-//      tesis— en una grilla exhaustiva de entradas.
+//      idéntico al del algoritmo original en una grilla exhaustiva de entradas.
 //   2. CONFIGURABILIDAD: cambiar las variables de entorno tiene que cambiar la
 //      clasificación de forma predecible.
 //
@@ -34,7 +33,7 @@ if (copiaBolsa !== jsCode) {
 console.log('OK    Code - Scoring Lead Bolsa es una copia exacta de Code - Scoring');
 
 // Algoritmo ORIGINAL, tal como estaba antes de parametrizarlo. Es la referencia
-// contra la que se compara: es lo que la Tabla 4 de la tesis documenta.
+// contra la que se compara.
 function scoringOriginal(l) {
   let score = 0;
   const b = parseInt(l.presupuesto) || 0;
@@ -122,7 +121,7 @@ check('lead premium ⇒ HOT (40+30+20+5+5 = 100)', hot.score === 100 && hot.tier
 const cold = scoringDelNodo({presupuesto: 100, urgencia: 'baja', servicio: 'soporte'});
 check('lead mínimo ⇒ COLD (0+5+5 = 10)', cold.score === 10 && cold.tier === 'COLD', JSON.stringify(cold));
 
-// Presupuesto alto + urgencia baja: el caso que pregunta el dictamen (cuestión 3).
+// Presupuesto alto + urgencia baja: el caso límite del criterio.
 const raro = scoringDelNodo({presupuesto: 12000, urgencia: 'baja', servicio: 'consultoria'});
 check('presupuesto alto + urgencia baja ⇒ WARM (40+5+12 = 57)', raro.score === 57 && raro.tier === 'WARM', JSON.stringify(raro));
 

@@ -1,18 +1,16 @@
 -- =====================================================================
--- Esquema de la base de datos — CRM Freelance
+-- Esquema de la base de datos — FormularioLeads
 -- PostgreSQL / Supabase. Idempotente: se puede ejecutar varias veces.
 --
 -- Este archivo es la fuente de verdad del modelo de datos y de la
--- seguridad a nivel de fila (RLS) descrita en la tesis (§4.4, §4.6 y
--- Anexo C; requisitos RNF1 y RNF2).
+-- seguridad a nivel de fila (RLS); ver docs/seguridad.md.
 --
 -- Modelo de seguridad:
 --   • La ESCRITURA la realiza n8n con el rol `n8n_writer`: sin BYPASSRLS,
 --     con políticas propias sobre las tablas que usa el workflow, incluido
 --     el registro financiero y las cuotas de tasa. No tiene BYPASSRLS ni
 --     acceso general a profiles. El radio de daño debe evaluarse contra
---     los GRANT y las políticas vigentes más abajo, no contra la antigua
---     lista de cuatro tablas de la tesis. `service_role`
+--     los GRANT y las políticas vigentes más abajo. `service_role`
 --     sigue existiendo (GRANT más abajo) para uso administrativo puntual,
 --     pero deja de ser la credencial que usa la conexión de n8n.
 --   • La plataforma es compartida: cada desarrollador tiene un ESPACIO
@@ -278,7 +276,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 -- inserta una fila acá antes de seguir; el propio nodo Postgres cuenta cuántas
 -- hubo desde la misma clave en la ventana reciente y corta la cadena si se
 -- pasó del umbral (ver workflow/crm_postgres.json, nodos «Postgres - Rate
--- Limit (...)» y docs/verificacion-y-seguridad.md §5.3.1).
+-- Limit (...)» y docs/seguridad.md §5.3.1).
 -- `ip_o_clave` es la IP de origen para los cuatro webhooks de token, y el
 -- email declarado en el propio formulario (si vino) para `lead/nuevo`.
 -- Avisos al desarrollador (23-sep-2026). Hasta entonces todo iba a un único

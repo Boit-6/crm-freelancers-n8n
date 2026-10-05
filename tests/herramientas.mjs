@@ -19,10 +19,6 @@ try {
   alterado.archivos['db/schema.sql'] = '0'.repeat(64);
   writeFileSync(ruta, JSON.stringify(alterado));
   assert.equal(spawnSync(process.execPath, [script, 'verify', ruta]).status, 1);
-  // Entrada histórica E7 valida argumentos antes de cualquier conexión.
-  const realtime = path.join(raiz, 'scripts/medir-realtime.mjs');
-  assert.equal(spawnSync(process.execPath, [realtime, '--n', '0']).status, 2);
-
   const render = path.join(raiz, 'scripts/render-workflows.mjs');
   const fuente = path.join(raiz, 'workflow');
   const nombres = readdirSync(fuente).filter((nombre) => nombre.endsWith('.json') && !nombre.includes('.backup-')).sort();

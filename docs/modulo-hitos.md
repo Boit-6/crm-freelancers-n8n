@@ -238,7 +238,7 @@ El Inicio del panel suma lo que espera una acción de cada uno:
 
 Los hitos entregados no aparecen: esperan al cliente. El panel está suscripto
 a los cambios de `hitos` en tiempo real, así que un pago o una disputa del
-cliente aparecen sin recargar (medido: 1,4 s, dentro de los 3 s del RNF6).
+cliente aparecen sin recargar (medido: 1,4 s, dentro del objetivo de 3 s).
 
 ## 5. Funciones de la base
 
@@ -263,14 +263,14 @@ y `exigir_admin()`.
 ## 6. Pruebas
 
 La evidencia siguiente es histórica y local: no valida el estado de Stripe ni
-un despliegue actual. `tests/backend_financiero.mjs` comprueba offline el
+un despliegue actual. `tests/backend-financiero.mjs` comprueba offline el
 contrato versionado; no sustituye una prueba de integración con Stripe.
 
 
 - `npm run test:rls`, sección 30: el ciclo completo de un proyecto con tres
   hitos (pago en orden, entrega, aprobación, disputa partida, liberación sola)
-  y las barreras de cada rol. Evidencia en [`evidencia-rls.md`](evidencia-rls.md).
-- `FormularioLeads`: `disputas-tablero.test.tsx` (las tres opciones, bordes del
+  y las barreras de cada rol.
+- `web`: `disputas-tablero.test.tsx` (las tres opciones, bordes del
   monto y de la nota, confirmación, error de la base, resueltas),
   `inicio-secciones.test.tsx`, `panel-shell.test.tsx` y `lib/hitos.test.ts`.
 - En vivo, con el doble de Stripe: una disputa partida 250 / 250,50

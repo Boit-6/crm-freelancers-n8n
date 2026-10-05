@@ -62,5 +62,5 @@ privilegio de `DELETE`. Esto no restringe a `service_role` administrativo.
 - `npm run test:idempotencia`: la siembra sin duplicados, el score, el SQL real
   del cron (quién escala y quién no, el tope en `CRITICA`, que una segunda
   corrida no escale) y el cierre al pasar a `HECHO`.
-- `FormularioLeads/src/app/api/tickets/estado/route.test.ts` y
+- `web/src/app/api/tickets/estado/route.test.ts` y
   `src/lib/tickets.test.ts`: validación de la API y el mapeo de la vista.

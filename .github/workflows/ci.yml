@@ -1,6 +1,6 @@
 name: CI
 
-# Valida el artefacto en cada push y pull request. Todo lo que corre acá es
+# Valida el repositorio en cada push y pull request. Todo lo que corre acá es
 # offline: no necesita n8n, ni credenciales, ni la instancia de Supabase.
 # La validación funcional de punta a punta (tests/escenarios.mjs) se ejecuta a
 # mano contra el entorno controlado, porque requiere el sistema levantado.
@@ -8,9 +8,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore: ['docs/**', '*.md', 'FormularioLeads/docs/**']
+    paths-ignore: ['docs/**', '*.md']
   pull_request:
-    paths-ignore: ['docs/**', '*.md', 'FormularioLeads/docs/**']
+    paths-ignore: ['docs/**', '*.md']
   workflow_dispatch:
 
 concurrency:
@@ -62,9 +62,9 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      # Nodos Code de los dos workflows, scoring (regresión contra la Tabla 4),
-      # envejecimiento de tickets y afirmaciones de la tesis.
-      - name: Pruebas del artefacto
+      # Nodos Code de los workflows, scoring (regresión contra la tabla de
+      # referencia), parámetros SQL, escape de HTML, firmas y pagos.
+      - name: Pruebas de los workflows
         run: npm test
 
       # Compila las consultas SQL de los workflows contra el esquema real: una
@@ -77,8 +77,8 @@ jobs:
       - name: Verificación de RLS
         run: npm run test:rls
 
-      # Ejecuta de verdad las consultas de deduplicación (S6) y de reconciliación
-      # de facturas (S5), leyendo el SQL del propio workflow: si un nodo deja de
+      # Ejecuta de verdad las consultas de deduplicación y de reconciliación
+      # de facturas, leyendo el SQL del propio workflow: si un nodo deja de
       # ser idempotente, se pone en rojo acá. Mismo PostgreSQL desechable que las
       # dos anteriores, en su propio contenedor.
       - name: Idempotencia de la captación y la facturación
@@ -90,7 +90,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: FormularioLeads
+        working-directory: web
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -98,13 +98,13 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: FormularioLeads/package-lock.json
+          cache-dependency-path: web/package-lock.json
 
       - name: Cache de build de Next.js
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: FormularioLeads/.next/cache
-          key: nextjs-${{ runner.os }}-${{ hashFiles('FormularioLeads/package-lock.json') }}
+          path: web/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('web/package-lock.json') }}
           restore-keys: |
             nextjs-${{ runner.os }}-
 

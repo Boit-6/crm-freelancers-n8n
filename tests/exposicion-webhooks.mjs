@@ -43,9 +43,7 @@ const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const INEXISTENTE = 'LD-0000000000000-NOEX';
 const TOKEN_FALSO = '00000000-0000-4000-8000-000000000000';
 
-// Los webhooks de la Tabla 10 (catorce en la tesis; diecisiete desde el cobro
-// con Stripe Connect, 24-sep-2026), con lo que el documento afirma de cada uno.
-// (factura-anular, 01-sep-2026, cierra la transición ANULADA de §4.8 / Cap. 8 punto 7).
+// Los webhooks del flujo, con el control que se espera de cada uno.
 const WEBHOOKS = [
   {ruta: 'lead-nuevo', metodo: 'POST', esperado: 'sin auth', grupo: 'público',
     cuerpo: null /* se completa abajo: es el único que crea algo */},

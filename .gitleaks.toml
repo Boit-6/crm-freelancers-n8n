@@ -1,0 +1,14 @@
+# Reglas por defecto de gitleaks más una excepción: los UUID de ejemplo que
+# usan las pruebas como tokens de enlace (accept_token, pago_token). Los genera
+# la propia base por lead o factura; no son credenciales de ningún servicio.
+title = "FormularioLeads"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Tokens UUID de fixture en archivos de prueba"
+paths = [
+  '''\.test\.tsx?$''',
+  '''^tests/smoke-code-nodes\.mjs$''',
+]

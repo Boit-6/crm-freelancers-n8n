@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 // Validación funcional EJECUTABLE del ciclo comercial completo.
 //
-// El dictamen observa que la validación por escenarios de §5 tiene «un
-// componente de autorreporte»: los resultados están descritos en prosa y
-// respaldados por capturas, pero nadie más puede re-ejecutarlos. Este runner
-// los convierte en una corrida reproducible: dispara los webhooks reales,
+// Describir los escenarios en prosa y con capturas no alcanza: nadie más puede
+// re-ejecutarlos. Este runner los convierte en una corrida reproducible: dispara los webhooks reales,
 // verifica el estado resultante en la base y mide cuánto tardó cada paso.
 //
 // No simula nada: habla con la instancia de n8n y con la base de verdad.
@@ -19,7 +17,7 @@
 //   node tests/escenarios.mjs                 corre todo y escribe el reporte
 //   node tests/escenarios.mjs --verificar     sólo chequea configuración y conectividad
 //   node tests/escenarios.mjs --no-limpiar    deja los datos de prueba en la base
-import {writeFileSync} from 'node:fs';
+import {mkdirSync, writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {cargarEnv, crearRest, crearWebhook} from './helpers/servicios.mjs';
@@ -81,8 +79,8 @@ function medir(nombre, ms, detalle = '') {
 }
 
 // ── Definición de los escenarios ───────────────────────────────────────────
-// `tabla9` mapea contra la Tabla 9 de la tesis donde el mapeo es seguro.
-// Los `null` hay que cotejarlos con el documento antes de citarlos.
+// `tabla9` es el número del escenario en la tabla de casos original, donde el
+// mapeo es inequívoco; `null` donde no lo es.
 const ejecucion = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
 const emailDe = (sufijo) => `crm.test.${ejecucion}.${sufijo}@example.test`;
 const creados = [];
@@ -621,7 +619,7 @@ async function main() {
   const fallidos = resultados.filter((r) => r.estado !== 'OK').length;
 
   console.log(`\nResultado: ${resultados.length - fallidos} OK, ${fallidos} con problemas`);
-  console.log('Reporte: docs/evidencia-validacion.md');
+  console.log('Reporte: reportes/escenarios.md');
   process.exit(fallidos ? 1 : 0);
 }
 
@@ -649,8 +647,7 @@ function escribirReporte() {
   });
 
   l.push('');
-  l.push('> La columna «Tabla 9» sólo se completa donde el mapeo con el documento es inequívoco.');
-  l.push('> Los `—` hay que cotejarlos contra la Tabla 9 antes de citarlos en la tesis.');
+  l.push('> La columna «Tabla 9» sólo se completa donde el mapeo con la tabla de casos es inequívoco.');
   l.push('');
   l.push('## Comprobaciones');
   l.push('');
@@ -666,7 +663,7 @@ function escribirReporte() {
   if (metricas.length) {
     l.push('## Métricas del entorno controlado');
     l.push('');
-    l.push('> Responde la recomendación 5 del dictamen v4. Son tiempos de punta a punta:');
+    l.push('> Son tiempos de punta a punta:');
     l.push('> incluyen la latencia de red, el procesamiento de n8n y los servicios externos.');
     l.push('');
     l.push('| Escenario | Medición | Tiempo | Detalle |');
@@ -684,7 +681,8 @@ function escribirReporte() {
     }
   }
 
-  writeFileSync(path.join(raiz, 'docs', 'evidencia-validacion.md'), l.join('\n') + '\n', 'utf8');
+  mkdirSync(path.join(raiz, 'reportes'), {recursive: true});
+  writeFileSync(path.join(raiz, 'reportes', 'escenarios.md'), l.join('\n') + '\n', 'utf8');
 }
 
 main().catch((err) => {

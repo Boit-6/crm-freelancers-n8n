@@ -1,1 +1,1 @@
-npx lint-staged --config FormularioLeads/package.json --cwd FormularioLeads
+npx lint-staged --config web/package.json --cwd web

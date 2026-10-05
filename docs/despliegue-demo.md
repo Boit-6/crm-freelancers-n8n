@@ -1,7 +1,7 @@
 # Despliegue de la demo de portfolio
 
 Cómo publicar una demo pública, sin costo y sin riesgo para terceros. Los pasos operativos generales
-(esquema, credenciales de n8n, renderizado de CORS) están en el [README técnico](README-tecnico.md); esta
+(esquema, credenciales de n8n, renderizado de CORS) están en el [README técnico](guia-tecnica.md); esta
 guía agrega lo propio de la demo.
 
 ```
@@ -40,7 +40,8 @@ STRIPE_WEBHOOK_SECRET=
 AVISOS_WORKFLOW_ID=<id de avisos.json, después de importarlo>
 ```
 
-**Vercel.** Las `NEXT_PUBLIC_*` se incrustan al compilar: después de cambiarlas hay que volver a desplegar.
+**Vercel.** El proyecto se importa con **Root Directory = `web`**. Las `NEXT_PUBLIC_*` se incrustan al
+compilar: después de cambiarlas hay que volver a desplegar.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co

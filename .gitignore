@@ -28,18 +28,10 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Basura de Word (backups automáticos y lock files del .docx)
-*.docx.bak-*
-~$*.docx
-
 # Copias de respaldo de los flujos exportados de n8n. No son el artefacto: si
 # entran al repo, cualquier herramienta que lea workflow/*.json termina midiendo
 # o probando código viejo.
 workflow/*.backup-*.json
 
-# Material de trabajo interno que la tesis no cita. El §4.1 remite a este repo,
-# así que lo que queda versionado debería ser el artefacto y su evidencia, no las
-# notas de preparación de la defensa ni las capturas que quedaron obsoletas.
-# Ambas carpetas siguen existiendo en disco: se sacan del repo, no se borran.
-docs/_interno/
-docs/_historico/
+# Reportes que generan las pruebas contra el sistema levantado
+reportes/
