@@ -1,4 +1,4 @@
-# FormularioLeads
+# CRM para freelancers
 
 **CRM automatizado para freelancers.** De la consulta al cobro sin tareas manuales: el pedido entra
 calificado, la propuesta se acepta en línea, la factura sale sola en PDF y el pago actualiza el panel en
@@ -9,7 +9,7 @@ publican proyectos y el pago se protege por hitos.
 
 ## Demo en vivo
 
-🔗 **https://formularioleads-ecru.vercel.app**: en la pantalla de ingreso hay dos cuentas de prueba, una de
+🔗 **https://crm-freelancers-n8n.vercel.app**: en la pantalla de ingreso hay dos cuentas de prueba, una de
 desarrollador y una de cliente, que entran con un clic.
 
 > Por ahora están en línea el front y la base (panel, perfiles, directorio). El formulario, las propuestas

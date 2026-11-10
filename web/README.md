@@ -1,4 +1,4 @@
-# FormularioLeads — front
+# CRM para freelancers — front
 
 Capa de presentación del proyecto (ver la [documentación técnica](../docs/guia-tecnica.md) para
 la arquitectura completa). Next.js 16 (App Router) + React 19 + Tailwind v4 +

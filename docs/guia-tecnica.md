@@ -1,4 +1,4 @@
-# FormularioLeads — guía técnica
+# CRM para freelancers — guía técnica
 
 > Arquitectura, instalación, pruebas y seguridad. La presentación del proyecto está en el
 > [README principal](../README.md).
